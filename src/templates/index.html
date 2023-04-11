@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulaire de demande de certificat SSL</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/formulaire.css">
+
+    
+</head>
+<body>
+  <h1>Formulaire OTP</h1>
+  <form id="otpForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+    <label for="otp">OTP:</label>
+    <input type="text" id="otp" name="otp" require><br>
+    <button type="button" id="generateOTP">Générer OTP</button>
+    <button type="submit">Envoyer</button>
+  </form>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script >document.getElementById("generateOTP").addEventListener("click", function() {
+    // Appeler l'API pour générer l'OTP
+    fetch("/generate_otp")
+    .then(response => response.json())
+  });</script>
+
+</html>
+
+
+
