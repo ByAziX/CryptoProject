@@ -74,7 +74,7 @@ async fn send_email(otp:&[u8]) -> HttpResponse {
 
 // Handler pour soumettre le formulaire
 
-#[post("/submit_form")]
+#[post("/upload")]
 pub(crate) async fn submit_form(_data: web::Json<FormData>) -> impl Responder {
     
     HttpResponse::Ok().json(serde_json::json!({ "message": "Formulaire soumis avec succès !" }))
