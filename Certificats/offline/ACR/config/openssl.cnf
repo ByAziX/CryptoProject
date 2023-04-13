@@ -1,0 +1,48 @@
+[ ca ]
+default_ca = myCA
+
+[ myCA ]
+dir = .
+new_certs_dir = $dir/newcerts
+database = $dir/index
+serial = $dir/serial
+private_key = $dir/private.key
+certificate = $dir/cacert.pem
+default_md = sha256
+default_days = 365
+policy = myCA_policy
+x509_extensions = myCA_extensions
+copy_extensions = copy
+
+[ myCA_policy ]
+commonName = supplied
+stateOrProvinceName = optional
+countryName = optional
+emailAddress = optional
+organizationName = optional
+organizationalUnitName = optional
+
+[ myCA_extensions ]
+basicConstraints = critical, CA:true
+
+[ req ]
+req_extensions = v3_req
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+prompt             = no
+output_password    = mypass
+
+[ req_distinguished_name ]
+countryName            = FR
+stateOrProvinceName    = State or Province Name (full name)
+localityName           = Locality Name (eg, city)
+organizationName       = Organization Name (eg, company)
+organizationalUnitName = Organizational Unit Name (eg, section)
+commonName             = Common Name (eg, fully qualified host name)
+emailAddress           = Email@Address
+
+
+
+[ v3_req ]
+basicConstraints = CA:true
+keyUsage = digitalSignature, keyEncipherment

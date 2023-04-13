@@ -27,6 +27,11 @@ actix-ws = "0.2.5"
 awc = "3"
 uuid = { version = "0.8", features = ["v4"] }
 sanitize-filename = "^0.4.0"
+openssl-sys = "0.9.85"
+openssl = "0.10.50"
+lettre = "0.10.4"
+lettre_email = "0.9.4"
+
 
 
 derive_more = "0.99.7"

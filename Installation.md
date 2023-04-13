@@ -2,6 +2,23 @@
 
 cargo new hello-world
 cd hello-world
+cargo watch -x run
+
+
+
+
+# probleme avec openssl install : 
+
+sudo apt-get install libssl-dev pkg-config
+
+# création server smtp gmail 
+
+https://www.youtube.com/watch?v=g_j6ILT-X0k
+
+# password smtp
+dqvjnxkzwdjdoktc
+
+https://myaccount.google.com/u/1/apppasswords?pli=1&rapt=AEjHL4Ob_b4z4AZocvzwoV2WouTtfxrULkI---gSo_vJMwBJS3DWGz0MdpfpFOnTjmdmiOBG9HHLcR9gt53ZKHLfEuShWnO1JA
 
 ##  Cargo.toml
 [dependencies]
@@ -12,56 +29,97 @@ serde_json = "1.0.68"
 
 
 # Générer une clé privée pour l'autorité de certification (CA) :
-openssl ecparam -name secp384r1 -genkey -out racine.key
 
-# Générer un certificat auto-signé pour l'ACR
-openssl req -new -x509 -key racine.key -out racine.crt
+https://gist.github.com/Soarez/9688998
 
-# Configurer le fichier de configuration OpenSSL pour l'ACR
+openssl ecparam -name secp384r1 -genkey -out ca.key
 
-```
-[ca]
-default_ca = myCA
+# Generate a CSR
+openssl req -new -key ca.key -out ca.csr
 
-[myCA]
-dir = ./racine
-certs = $dir
-new_certs_dir = $dir
-database = $dir/index
-serial = $dir/serial
-private_key = ./racine.key
-certificate = ./racine.crt
-default_days = 365
-default_crl_days = 30
+
+openssl ca -config ca.cnf -out ca.crt -infiles ca.csr
+
+
+
+
+# ca.cnf --------------------->
+
+# we use 'ca' as the default section because we're usign the ca command
+[ ca ]
+default_ca = my_ca
+
+[ my_ca ]
+#  a text file containing the next serial number to use in hex. Mandatory.
+#  This file must be present and contain a valid serial number.
+serial = ./serial
+
+# the text database file to use. Mandatory. This file must be present though
+# initially it will be empty.
+database = ./index.txt
+
+# specifies the directory where new certificates will be placed. Mandatory.
+new_certs_dir = ./newcerts
+
+# the file containing the CA certificate. Mandatory
+certificate = ./ca.crt
+
+# the file contaning the CA private key. Mandatory
+private_key = ./ca.key
+
+# the message digest algorithm. Remember to not use MD5
 default_md = sha256
-policy = myCA_policy
-copy_extensions = copyall
-unique_subject = no
 
-[myCA_policy]
-countryName = optional
-stateOrProvinceName = optional
-organizationName = optional
+# for how many days will the signed certificate be valid
+default_days = 365
+
+# a section with a set of variables corresponding to DN fields
+policy = my_policy
+
+[ my_policy ]
+# if the value is "match" then the field value must match the same field in the
+# CA certificate. If the value is "supplied" then it must be present.
+# Optional means it may be present. Any fields not mentioned are silently
+# deleted.
+countryName = match
+stateOrProvinceName = supplied
+organizationName = supplied
+commonName = supplied
 organizationalUnitName = optional
 commonName = supplied
-emailAddress = optional
 
-```
-# Initialiser l'ACR
-
-openssl ca -selfsign -config racine.cnf -extensions myCA_policy -in racine.crt -out racine.crt
+# specify the path length constraint for the CA's issued certificates
+pathlen = 3
 
 
 
-# Générer une clé privée ECC pour l'autorité de certification intermédiaire : 
+# créate new directory, index , serial file
+mkdir newcerts
+touch index.txt
+echo '01' > serial
 
-openssl ecparam -genkey -name secp384r1 -out intermediate-key.pem
+# sign the certificate
 
-# Créer une demande de certificat pour l'autorité de certification intermédiaire avec les extensions appropriées :
-openssl req -new -key intermediate-key.pem -out intermediate-csr.pem -subj "/CN=MonAutoriteDeCertificationIntermediaire/O=MonOrganisation" -config <(echo -e "[req]\ndistinguished_name=dn\n[dn]\nCN=MonAutoriteDeCertificationIntermediaire\nO=MonOrganisation\n[ext]\nbasicConstraints=critical,CA:TRUE,pathlen:0\nkeyUsage=critical,keyCertSign,cRLSign\n")
+openssl ca -config ca.cnf -out ca.crt -infiles ca.csr
 
-# Signer la demande de certificat pour générer le certificat de l'autorité de certification intermédiaire :
-openssl x509 -req -days 3650 -in intermediate-csr.pem -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out intermediate-cert.pem
+
+openssl x509 -in oats.crt -noout -text
+
+
+
+
+
+
+
+# ACI
+
+openssl ecparam -name secp384r1 -genkey -out intermediate.key
+openssl req -new -key intermediate.key -out intermediate.csr
+
+
+openssl ca -in ../ACI/intermediate.csr -out ../ACI/intermediate.crt -cert ca.crt -keyfile ca.key -config ca.cnf
+
+
 
 
 # Sources
