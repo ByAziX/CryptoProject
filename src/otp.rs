@@ -1,4 +1,6 @@
 
+use std::fs::OpenOptions;
+use std::io::Read;
 use std::{fs::File, io::Write};
 
 use actix_web::{web, HttpResponse, Responder, get, post,HttpRequest,App,HttpServer};
@@ -14,6 +16,9 @@ use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
 use lettre_email::Email;
 
+use tera::Tera;
+
+
 
 // Structure pour représenter les données du formulaire
 #[derive(Serialize, Deserialize)]
@@ -22,28 +27,41 @@ pub(crate) struct FormData {
     otp: String,
 }
 
-// Define the data structure for email payload
-#[derive(Debug, Deserialize)]
-struct EmailData {
-    to: String,
-    subject: String,
-    body: String,
-}
 
-// Handler pour générer l'OTP
-#[get("/generate_otp")]
-pub(crate) async fn generate_otp() -> impl Responder {
+pub(crate) async fn generate_otp(Email: String)  {
     let mut rng = rand::thread_rng();
     let otp: u32 = rng.gen_range(100000..999999);
     let otp = otp.to_string();
     let otp = otp.as_bytes();
 
-   
-send_email(otp).await;
+
+
+    // check if email is already in file
+    let mut file = File::open("otp.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    if contents.contains(&Email) {
+        // changer otp dans le fichier apres les :
         
-    let file = File::create("./OTPgenerate/otp.txt");
-    file.unwrap().write_all(otp).unwrap();
-    HttpResponse::Ok().json(serde_json::json!({ "otp": otp }))
+        return;
+    }else {
+        let file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("otp.txt");
+        let mut file = match file {
+            Ok(file) => file,
+            Err(_) => panic!("Impossible d'ouvrir le fichier otp.txt"),
+        };
+        file.write_all(Email.as_bytes()).unwrap();
+        file.write_all(b":").unwrap();
+        file.write_all(otp).unwrap();
+        file.write_all(b"\n").unwrap();
+    }
+    
+     
+    println!("Email et OTP ajoutés au fichier otp.txt avec succès!");
+    
 }
 
 async fn send_email(otp:&[u8]) -> HttpResponse {
@@ -70,12 +88,5 @@ async fn send_email(otp:&[u8]) -> HttpResponse {
     }
 }
 
-// pub(crate) async fn checkOTP()
 
-// Handler pour soumettre le formulaire
 
-#[post("/upload")]
-pub(crate) async fn submit_form(_data: web::Json<FormData>) -> impl Responder {
-    
-    HttpResponse::Ok().json(serde_json::json!({ "message": "Formulaire soumis avec succès !" }))
-}

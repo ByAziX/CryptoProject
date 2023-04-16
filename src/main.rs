@@ -5,22 +5,32 @@ use actix_multipart::{
     
 };
 use actix_web::{middleware, web, App, HttpResponse, HttpServer, Responder};
-
+use tera::Tera;
 mod upload_file;
 mod otp;
 
-
-async fn index() -> impl Responder {
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(include_str!("./templates/index.html"))
+#[derive(Debug, serde::Deserialize)]
+struct FormData {
+    email: String,
 }
 
-async fn upload_file() -> impl Responder {
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(include_str!("./templates/fileCSRUpload.html"))
+// Traitement de la requête GET pour la route /
+async fn index(tera: web::Data<Tera>) -> HttpResponse {
+    let context = tera::Context::from_serialize(serde_json::json!({})).expect("Erreur lors de la sérialisation des données");
+    let rendered = tera.render("index.html", &context).expect("Erreur lors du rendu du template index");
+    HttpResponse::Ok().body(rendered)
 }
+
+// Traitement de la requête POST pour la route /otp
+pub(crate) async fn otp_submit(tera: web::Data<Tera>, form: web::Form<FormData>) -> HttpResponse {
+
+    otp::generate_otp(form.email.to_string()).await;
+    let context = tera::Context::from_serialize(serde_json::json!({ "email": form.email })).expect("Erreur lors de la sérialisation des données");
+    let rendered = tera.render("otp.html", &context).expect("Erreur lors du rendu du template otp");
+    HttpResponse::Ok().body(rendered)
+}
+
+
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -30,16 +40,17 @@ async fn main() -> std::io::Result<()> {
     std::fs::create_dir_all("./tmp")?;
 
     log::info!("starting HTTP server at http://localhost:8080");
+    let tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/src/templates/**/*")).unwrap();
 
-    HttpServer::new(|| {
+
+    HttpServer::new(move || {
         App::new()
+            .data(tera.clone())
             .wrap(middleware::Logger::default())
             .app_data(TempFileConfig::default().directory("./tmp"))
             .service(web::resource("/").route(web::get().to(index)))
-            .service(otp::generate_otp)
-            .service(otp::submit_form)
-            .service(web::resource("/upload").route(web::get().to(upload_file)))
-            .service(upload_file::save_files)
+            .service(web::resource("/otp").route(web::post().to(otp_submit)))
+            
     })
     .bind(("127.0.0.1", 8080))?
     .workers(2)

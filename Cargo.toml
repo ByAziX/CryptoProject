@@ -31,7 +31,7 @@ openssl-sys = "0.9.85"
 openssl = "0.10.50"
 lettre = "0.10.4"
 lettre_email = "0.9.4"
-
+tera = "1.18.1"
 
 
 derive_more = "0.99.7"
