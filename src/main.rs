@@ -4,7 +4,7 @@ use actix_multipart::{
     },
     
 };
-use actix_web::{middleware, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use tera::Tera;
 mod upload_file;
 mod otp;
@@ -22,10 +22,10 @@ async fn index(tera: web::Data<Tera>) -> HttpResponse {
 }
 
 // Traitement de la requête POST pour la route /otp
-pub(crate) async fn otp_submit(tera: web::Data<Tera>, form: web::Form<FormData>) -> HttpResponse {
+pub(crate) async fn email_submit_otp_generation(tera: web::Data<Tera>, form: web::Form<FormData>) -> HttpResponse {
 
-    let otp = otp::generate_otp(form.email.to_string()).await;
-   // otp::send_otp_email(form.email.to_string(),otp).await;
+    otp::generate_otp(form.email.to_string()).await;
+    
     
     let context = tera::Context::from_serialize(serde_json::json!({ "email": form.email })).expect("Erreur lors de la sérialisation des données");
     let rendered = tera.render("otp.html", &context).expect("Erreur lors du rendu du template otp");
@@ -51,7 +51,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .app_data(TempFileConfig::default().directory("./tmp"))
             .service(web::resource("/").route(web::get().to(index)))
-            .service(web::resource("/otp").route(web::post().to(otp_submit)))
+            .service(web::resource("/otp").route(web::post().to(email_submit_otp_generation)))
             
     })
     .bind(("127.0.0.1", 8080))?
