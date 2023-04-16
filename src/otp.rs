@@ -21,6 +21,7 @@ pub(crate) struct FormData {
     otp: String,
 }
 
+// generate_otp() génère un OTP aléatoire et l'envoie par e-mail à l'utilisateur
 pub(crate) async fn generate_otp(email: String) {
     let mut rng = rand::thread_rng();
     let otp: u32 = rng.gen_range(100000..999999);
@@ -89,7 +90,7 @@ async fn send_otp_email(email_user:String,otp: &[u8]) {
     println!("Email envoyé avec succès!");
 }
 
-
+// verify_otp() vérifie si l'OTP entré par l'utilisateur correspond à celui envoyé par e-mail
 pub(crate) async fn verify_otp(email: String,otp: &[u8]) -> bool {
     let mut file = File::open("otp.txt").unwrap();
     let mut contents = String::new();

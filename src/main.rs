@@ -1,10 +1,6 @@
-use std::{error::Error, fs::File, io::Read};
-
-use actix::fut::ok;
-use actix_http::body::MessageBody;
 use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{
-    cookie::Cookie, get, middleware, post, web, App, HttpRequest, HttpResponse, HttpServer,
+    cookie::Cookie, get, middleware, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,Error
 };
 use tera::Tera;
 mod otp;
@@ -18,6 +14,21 @@ struct FormDataEmail {
 
 struct FormDataOtp {
     otp: String,
+}
+
+use actix_multipart::{
+    form::{
+        tempfile::{TempFile},
+        MultipartForm,
+    },
+    
+};
+
+
+#[derive(Debug, MultipartForm)]
+pub(crate) struct UploadForm {
+    #[multipart(rename = "file")]
+    files: Vec<TempFile>,
 }
 
 #[get("/")]
@@ -56,7 +67,7 @@ async fn email_submit_otp_generation(
 
 // Traitement de la requête POST pour la route /uploadCSR
 #[post("/uploadCSR")]
-async fn upload_csr(
+async fn verification_OTP(
     tera: web::Data<Tera>,
     form: web::Form<FormDataOtp>,
     req: HttpRequest,
@@ -87,6 +98,19 @@ async fn upload_csr(
     }
 }
 
+#[post("/upload/certificate")]
+pub(crate) async fn save_files(
+    MultipartForm(form): MultipartForm<UploadForm>,
+) -> Result<impl Responder, Error> {
+    for f in form.files {
+        let path = format!("./tmp/{}", f.file_name.unwrap());
+        log::info!("saving to {path}");
+        f.file.persist(path).unwrap();
+    }
+
+    Ok(HttpResponse::Ok())
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
@@ -104,7 +128,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(TempFileConfig::default().directory("./tmp"))
             .service(index)
             .service(email_submit_otp_generation)
-            .service(upload_csr)
+            .service(verification_OTP)
+            .service(save_files)
     })
     .bind(("127.0.0.1", 8080))?
     .workers(2)
