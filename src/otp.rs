@@ -28,7 +28,7 @@ pub(crate) struct FormData {
 }
 
 
-pub(crate) async fn generate_otp(Email: String)  {
+pub(crate) async fn generate_otp(email: String)  {
     let mut rng = rand::thread_rng();
     let otp: u32 = rng.gen_range(100000..999999);
     let otp = otp.to_string();
@@ -40,10 +40,23 @@ pub(crate) async fn generate_otp(Email: String)  {
     let mut file = File::open("otp.txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
-    if contents.contains(&Email) {
-        // changer otp dans le fichier apres les :
-        
-        return;
+    if contents.contains(&email) {
+         // Update OTP in the file
+         let mut updated_contents = String::new();
+         for line in contents.lines() {
+             if line.starts_with(&email) {
+                 // Update OTP for the matching email
+                 let new_line = format!("{}:{}", email, String::from_utf8_lossy(&otp));
+                 updated_contents.push_str(&new_line);
+             } else {
+                 updated_contents.push_str(line);
+             }
+             updated_contents.push('\n');
+         }
+ 
+         let mut file = File::create("otp.txt").expect("Failed to create file otp.txt");
+         file.write_all(updated_contents.as_bytes()).expect("Failed to write to file otp.txt");
+       
     }else {
         let file = OpenOptions::new()
         .append(true)
@@ -53,7 +66,7 @@ pub(crate) async fn generate_otp(Email: String)  {
             Ok(file) => file,
             Err(_) => panic!("Impossible d'ouvrir le fichier otp.txt"),
         };
-        file.write_all(Email.as_bytes()).unwrap();
+        file.write_all(email.as_bytes()).unwrap();
         file.write_all(b":").unwrap();
         file.write_all(otp).unwrap();
         file.write_all(b"\n").unwrap();
@@ -64,7 +77,7 @@ pub(crate) async fn generate_otp(Email: String)  {
     
 }
 
-async fn send_email(otp:&[u8]) -> HttpResponse {
+async fn send_otp_email(email_user:String, otp:&[u8]) -> HttpResponse {
     let email = Message::builder() 
     .from("projetcryptoca@gmail.com".parse().unwrap()) 
     .to("hugo.millet@isen.yncrea.fr".parse().unwrap()) 

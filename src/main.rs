@@ -24,7 +24,9 @@ async fn index(tera: web::Data<Tera>) -> HttpResponse {
 // Traitement de la requête POST pour la route /otp
 pub(crate) async fn otp_submit(tera: web::Data<Tera>, form: web::Form<FormData>) -> HttpResponse {
 
-    otp::generate_otp(form.email.to_string()).await;
+    let otp = otp::generate_otp(form.email.to_string()).await;
+   // otp::send_otp_email(form.email.to_string(),otp).await;
+    
     let context = tera::Context::from_serialize(serde_json::json!({ "email": form.email })).expect("Erreur lors de la sérialisation des données");
     let rendered = tera.render("otp.html", &context).expect("Erreur lors du rendu du template otp");
     HttpResponse::Ok().body(rendered)
