@@ -1,10 +1,10 @@
 use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{
-    cookie::Cookie, get, middleware, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,Error
+    cookie::Cookie, get, middleware, post, web, App, HttpRequest, HttpResponse, HttpServer,
 };
 use tera::Tera;
 mod otp;
-mod uploadCSR;
+mod upload_csr;
 
 #[derive(Debug, serde::Deserialize)]
 struct FormDataEmail {
@@ -69,7 +69,7 @@ async fn verification_otp(
             let context = tera::Context::from_serialize(serde_json::json!({ "email": email}))
                 .expect("Erreur lors de la sérialisation des données");
             let rendered = tera
-                .render("uploadCSR.html", &context)
+                .render("upload_csr.html", &context)
                 .expect("Erreur lors du rendu du template uploadCSR");
 
             HttpResponse::Ok().body(rendered)
@@ -104,7 +104,7 @@ async fn main() -> std::io::Result<()> {
             .service(index)
             .service(email_submit_otp_generation)
             .service(verification_otp)
-            .service(uploadCSR::save_files)
+            .service(upload_csr::save_files)
     })
     .bind(("127.0.0.1", 8080))?
     .workers(2)

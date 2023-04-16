@@ -1,7 +1,5 @@
 use actix_web::{ post, HttpResponse, Responder,Error
 };
-use tera::Tera;
-
 
 use actix_multipart::{
     form::{

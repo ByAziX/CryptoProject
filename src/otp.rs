@@ -1,9 +1,6 @@
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::{fs::File, io::Write};
-
-use actix_web::{HttpResponse, web};
-use actix_web::cookie::Cookie;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
