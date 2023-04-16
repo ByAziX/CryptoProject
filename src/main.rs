@@ -16,20 +16,6 @@ struct FormDataOtp {
     otp: String,
 }
 
-use actix_multipart::{
-    form::{
-        tempfile::{TempFile},
-        MultipartForm,
-    },
-    
-};
-
-
-#[derive(Debug, MultipartForm)]
-pub(crate) struct UploadForm {
-    #[multipart(rename = "file")]
-    files: Vec<TempFile>,
-}
 
 #[get("/")]
 // Traitement de la requête GET pour la route /
@@ -67,7 +53,7 @@ async fn email_submit_otp_generation(
 
 // Traitement de la requête POST pour la route /uploadCSR
 #[post("/uploadCSR")]
-async fn verification_OTP(
+async fn verification_otp(
     tera: web::Data<Tera>,
     form: web::Form<FormDataOtp>,
     req: HttpRequest,
@@ -98,18 +84,7 @@ async fn verification_OTP(
     }
 }
 
-#[post("/upload/certificate")]
-pub(crate) async fn save_files(
-    MultipartForm(form): MultipartForm<UploadForm>,
-) -> Result<impl Responder, Error> {
-    for f in form.files {
-        let path = format!("./tmp/{}", f.file_name.unwrap());
-        log::info!("saving to {path}");
-        f.file.persist(path).unwrap();
-    }
 
-    Ok(HttpResponse::Ok())
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -128,8 +103,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(TempFileConfig::default().directory("./tmp"))
             .service(index)
             .service(email_submit_otp_generation)
-            .service(verification_OTP)
-            .service(save_files)
+            .service(verification_otp)
+            .service(uploadCSR::save_files)
     })
     .bind(("127.0.0.1", 8080))?
     .workers(2)

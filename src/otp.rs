@@ -21,6 +21,7 @@ pub(crate) struct FormData {
     otp: String,
 }
 
+
 // generate_otp() génère un OTP aléatoire et l'envoie par e-mail à l'utilisateur
 pub(crate) async fn generate_otp(email: String) {
     let mut rng = rand::thread_rng();
