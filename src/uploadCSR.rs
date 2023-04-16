@@ -14,7 +14,6 @@ pub(crate) struct UploadForm {
     files: Vec<TempFile>,
 }
 
-#[post("/upload/certificate")]
 pub(crate) async fn save_files(
     MultipartForm(form): MultipartForm<UploadForm>,
 ) -> Result<impl Responder, Error> {

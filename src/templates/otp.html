@@ -10,15 +10,13 @@
 </head>
 <body>
   <h1>Formulaire OTP</h1>
-  <form action="/upload" id="otpForm">
+  <form action="/uploadCSR" method="post" id="otpForm">
     <label for="email">Email:</label>
-    <span>{{email}}</span>
+    <span id="email" name="email">{{email}}</span>
     <label for="otp">OTP:</label>
     <input type="text" id="otp" name="otp" require><br>
-    <button type="button" id="generateOTP">Générer OTP</button>
     <button type="submit">Envoyer</button>
   </form>
 </body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </html>
 

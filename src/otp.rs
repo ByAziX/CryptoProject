@@ -2,6 +2,8 @@ use std::fs::OpenOptions;
 use std::io::Read;
 use std::{fs::File, io::Write};
 
+use actix_web::{HttpResponse, web};
+use actix_web::cookie::Cookie;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -85,4 +87,27 @@ async fn send_otp_email(email_user:String,otp: &[u8]) {
 
     mailer.send(&email).unwrap();
     println!("Email envoyé avec succès!");
+}
+
+
+pub(crate) async fn verify_otp(email: String,otp: &[u8]) -> bool {
+    let mut file = File::open("otp.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    if contents.contains(&email) {
+        for line in contents.lines() {
+            if line.starts_with(&email) {
+                let otp_file = line.split(":").collect::<Vec<&str>>()[1];
+                if otp_file == String::from_utf8_lossy(otp).as_ref() {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    } else {
+        return false
+    }
+    return false;
+
 }
