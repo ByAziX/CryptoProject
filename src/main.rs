@@ -72,7 +72,7 @@ async fn verification_otp(
                 .render("upload_csr.html", &context)
                 .expect("Erreur lors du rendu du template uploadCSR");
 
-            HttpResponse::Ok().body(rendered)
+            HttpResponse::Ok().cookie(cookie).body(rendered)
         } else {
             // httpResponse error message
             HttpResponse::Ok().body("404 error OTP incorrect")
