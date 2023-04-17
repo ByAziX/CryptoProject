@@ -8,7 +8,6 @@ use actix_multipart::{
     },
     
 };
-use tera::Tera;
 
 #[derive(Debug, MultipartForm)]
 pub(crate) struct UploadForm {
@@ -25,8 +24,6 @@ pub(crate) async fn save_files(
     let cookie = req.cookie("email");
     if let Some(cookie) = cookie {
         let email = cookie.value();
-
-        log::info!("email: {email}");
 
         for f in form.files {
             let path = format!("./tmp/{}", email.to_string()+".csr");

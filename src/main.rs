@@ -105,6 +105,11 @@ async fn main() -> std::io::Result<()> {
             .service(email_submit_otp_generation)
             .service(verification_otp)
             .service(upload_csr::save_files)
+            .service(
+                actix_files::Files::new("/static", "./src/static")
+                    .show_files_listing()
+                    .use_last_modified(true),
+            )
     })
     .bind(("127.0.0.1", 8080))?
     .workers(2)

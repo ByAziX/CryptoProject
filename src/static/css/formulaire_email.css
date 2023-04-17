@@ -1,0 +1,62 @@
+/* Réinitialiser les styles par défaut des éléments HTML */
+body, form, label, input, button {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Appliquer une police de caractères et une couleur de texte globale */
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Centrer le formulaire dans la page */
+form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Styliser le titre du formulaire */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Styliser les étiquettes des champs de formulaire */
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* Styliser les champs de saisie de formulaire */
+input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+/* Styliser le bouton de soumission du formulaire */
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  text-align: center;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* Ajouter un effet de survol sur le bouton de soumission */
+button[type="submit"]:hover {
+  background-color: #0069d9;
+}

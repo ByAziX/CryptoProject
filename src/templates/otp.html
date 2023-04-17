@@ -4,7 +4,8 @@
     <title>Formulaire de demande de certificat SSL</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../css/formulaire.css">
+    <link rel="stylesheet" href="../static/css/formulaire_otp.css">
+
 
     
 </head>
@@ -12,9 +13,9 @@
   <h1>Formulaire OTP</h1>
   <form action="/uploadCSR" method="post" id="otpForm">
     <label for="email">Email:</label>
-    <span id="email" name="email">{{email}}</span><br>
-    <label for="otp">OTP:</label>
-    <input type="text" id="otp" name="otp" require><br>
+    <span id="email" name="email">{{email}}</span>
+    <label for="otp" id="otp_label">OTP:</label>
+    <input type="text" id="otp" name="otp" require>
     <button type="submit">Envoyer</button>
   </form>
 </body>
