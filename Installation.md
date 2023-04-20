@@ -8,6 +8,12 @@ cargo watch -x run
 openssl x509 -in ./ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/hugo.millet@isen.yncrea.fr.pem -text -noout
 
 
+# verifier les certificat entre la ca et la aci :
+
+openssl verify -CAfile <nom-du-certificat-signataire>.pem <nom-du-certificat-a-verifier>.pem
+
+# verifier certificat pour l'utilisateur
+openssl verify -CAfile ./ACR/cacert.pem -untrusted ./ACI/cacert.pem ../client/cacert.pem
 
 # probleme avec openssl install : 
 

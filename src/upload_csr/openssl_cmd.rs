@@ -67,21 +67,28 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
     */
 
     /*faut implémenter le bon code avec la ACI !!!!!!!!!!!! */
-
+    let default_file = "/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/Certificats/offline";
     let conf_file = "/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/Certificats/offline/config/openssl.cnf";
-    let output_days = "90";
     
     let cert_pem = Command::new("openssl")
         .arg("ca")
-        .arg("-batch")
+        .arg("-keyfile")
+        .arg(default_file.to_owned()+"/ACI/private.key")
+        .arg("-cert")
+        .arg(default_file.to_owned()+"/ACI/cacert.pem")
         .arg("-config")
         .arg(conf_file)
         .arg("-in")
         .arg(csr_file_path)
-        .arg("-days")
-        .arg(output_days)
+        .arg("-out")
+        .arg("/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/Certificats/client/cacert.pem")
+        .arg("-extensions")
+        .arg("myCA_extensions")
+        .arg("-batch")
         .output()
         .expect("Failed to execute command");
+
+
 
     
     log::info!("cert_pem: {:?}", cert_pem);

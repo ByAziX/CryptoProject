@@ -72,7 +72,7 @@ create_intermediate_ca() {
   touch index serial && echo "01" >serial
 
   # Signer la demande de certificat avec l'ACR pour créer le certificat de l'ACI
-  openssl ca -keyfile "$originalFolder/secure/private.key" -cert "$originalFolder/secure/cacert.pem" -config "$originalFolder/config/ACI.cnf" -in csr.pem -out "$currentFolder/cacert.pem" -extensions myCA_extensions -batch
+  openssl ca -keyfile "$originalFolder/ACR/private.key" -cert "$originalFolder/ACR/cacert.pem" -config "$originalFolder/config/ACI.cnf" -in csr.pem -out "$currentFolder/cacert.pem" -extensions myCA_extensions -batch
 
   # Copier les fichiers cacert.pem et private.key dans un dossier sécurisé
   cp "$currentFolder/cacert.pem" $secureFolder

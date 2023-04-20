@@ -23,7 +23,8 @@ organizationName = optional
 organizationalUnitName = optional
 
 [ myCA_extensions ]
-basicConstraints = critical, CA:true
+basicConstraints = critical, CA:true,pathlen:3
+
 
 [ req ]
 req_extensions = v3_req
@@ -45,4 +46,4 @@ emailAddress           = hugo.millet@isen.yncrea.fr
 
 [ v3_req ]
 basicConstraints = CA:true
-keyUsage = digitalSignature, keyEncipherment
+keyUsage = digitalSignature, keyEncipherment, keyCertSign
