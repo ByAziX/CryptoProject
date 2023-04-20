@@ -2,7 +2,7 @@
 default_ca = myCA
 
 [ myCA ]
-dir = .
+dir = ../ACR/
 new_certs_dir = $dir/newcerts
 database = $dir/index
 serial = $dir/serial

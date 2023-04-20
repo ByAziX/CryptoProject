@@ -15,6 +15,28 @@ openssl verify -CAfile <nom-du-certificat-signataire>.pem <nom-du-certificat-a-v
 # verifier certificat pour l'utilisateur
 openssl verify -CAfile ./ACR/cacert.pem -untrusted ./ACI/cacert.pem ../client/cacert.pem
 
+
+
+# CLR rvocation : 
+openssl ca -config <config_file> -revoke <certificate_file>
+openssl ca -config <config_file> -gencrl -out <crl_file>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # probleme avec openssl install : 
 
 sudo apt-get install libssl-dev pkg-config
