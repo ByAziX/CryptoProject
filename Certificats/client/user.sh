@@ -11,7 +11,8 @@ mkdir $email
 cd $email
 
 # Générer une clé privée pour l'utilisateur
-openssl genpkey -algorithm RSA -out private.key
+
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
 
 # Créer une demande de certificat pour l'utilisateur
 openssl req -new -key private.key -out $email.csr -subj "/CN=$username/emailAddress=$email"
