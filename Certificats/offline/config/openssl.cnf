@@ -44,5 +44,5 @@ emailAddress           = Email@Address
 
 
 [ v3_req ]
-basicConstraints = CA:true
+basicConstraints = CA:false
 keyUsage = digitalSignature, keyEncipherment
