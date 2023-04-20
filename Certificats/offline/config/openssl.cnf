@@ -2,8 +2,8 @@
 default_ca = myCA
 
 [ myCA ]
-dir = Certificats/offline/ACR/
-new_certs_dir = Certificats/client/hugo.millet@isen.yncrea.fr
+dir = Certificats/offline/ACI/
+new_certs_dir = Certificats/client/
 database = $dir/index
 serial = $dir/serial
 private_key = $dir/private.key
@@ -40,8 +40,6 @@ organizationName       = ISEN
 organizationalUnitName = ISEN
 commonName             = ISEN
 emailAddress           = hugo.millet@isen.yncrea.fr
-
-
 
 
 [ v3_req ]
