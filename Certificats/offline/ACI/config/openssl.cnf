@@ -28,13 +28,14 @@ distinguished_name = req_distinguished_name
 req_extensions = req_ext
 
 [ req_distinguished_name ]
-countryName = FR
-stateOrProvinceName = State or Province Name (full name)
-localityName = Locality Name (eg, city)
-organizationName = Organization Name (eg, company)
-organizationalUnitName = Organizational Unit Name (eg, section)
-commonName = Common Name (eg, fully qualified host name)
-emailAddress = Email Address
+countryName            = FR
+stateOrProvinceName    = France
+localityName           = Toulon
+organizationName       = ISEN
+organizationalUnitName = ISEN
+commonName             = ISEN
+emailAddress           = hugo.millet@isen.yncrea.fr
+
 
 [ req_ext ]
 subjectAltName = @alt_names
