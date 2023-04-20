@@ -4,6 +4,8 @@ cargo new hello-world
 cd hello-world
 cargo watch -x run
 
+# lire un certificat 
+openssl x509 -in ./ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/hugo.millet@isen.yncrea.fr.pem -text -noout
 
 
 

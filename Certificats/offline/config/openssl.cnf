@@ -2,8 +2,8 @@
 default_ca = myCA
 
 [ myCA ]
-dir = .
-new_certs_dir = $dir/newcerts
+dir = Certificats/offline/ACR/
+new_certs_dir = Certificats/client/hugo.millet@isen.yncrea.fr
 database = $dir/index
 serial = $dir/serial
 private_key = $dir/private.key
@@ -18,12 +18,12 @@ copy_extensions = copy
 commonName = supplied
 stateOrProvinceName = optional
 countryName = optional
-emailAddress = optional
+emailAddress = supplied
 organizationName = optional
 organizationalUnitName = optional
 
 [ myCA_extensions ]
-basicConstraints = critical, CA:true
+basicConstraints = critical, CA:false
 
 [ req ]
 req_extensions = v3_req
