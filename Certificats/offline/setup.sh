@@ -35,7 +35,7 @@ create_root_ca() {
   mkdir newcerts
   touch index serial && echo "01" >serial
   # Signer la demande de certificat avec elle-même pour créer le certificat de l'ACR
-  openssl ca -selfsign -keyfile private.key -config "$currentFolder/config/openssl.cnf" -in csr.pem -out cacert.pem -extensions myCA_extensions -days 365 -batch
+  openssl ca -selfsign -keyfile private.key -config "$currentFolder/config/openssl.cnf" -in csr.pem -out cacert.pem -extensions myCA_extensions -batch
   # Copier les fichiers cacert.pem et private.key dans un dossier sécurisé
   cp cacert.pem $secureFolder
   cp private.key $secureFolder
@@ -43,35 +43,40 @@ create_root_ca() {
 
 create_intermediate_ca() {
   currentFolder="$originalFolder/ACI"
-  secureFolder="$currentFolder/secure/"
-  configFolder="$currentFolder/config"
+  secureFolder="$originalFolder/secure/"
+  configFolder="$originalFolder/config"
 
-  # Verify that ACI does not already exist
+  # Verify that ACR does not already exist
   if [ -d "ACI" ]; then
-    # delete the ACI folder
+    # delete the ACR folder
     rm -rf ACI
 
   fi
-  # Créer un dossier pour stocker les fichiers de l'ACI
+
+  # Créer un dossier pour stocker les fichiers de l'ACR
+
   mkdir ACI
   cd ACI
-  mkdir secure config
-  # Générer une clé privée pour l'ACI
-openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
+  mkdir config
 
+  # Générer une clé privée pour l'ACR
 
-  cp "$originalFolder/config/ACI.cnf" "$currentFolder/config/openssl.cnf"
-  # Créer une demande de certificat pour l'ACI
+  openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
+
+  cp "$configFolder/ACI.cnf" "$currentFolder/config/openssl.cnf"
+  echo "creation de l'ACI"
+  # Créer une demande de certificat pour l'ACR
   openssl req -new -key private.key -out csr.pem -config "$currentFolder/config/openssl.cnf"
 
-  mkdir newcerts && touch index serial && echo "01" >serial
+  mkdir newcerts
+  touch index serial && echo "01" >serial
 
   # Signer la demande de certificat avec l'ACR pour créer le certificat de l'ACI
-  openssl ca -keyfile "$originalFolder/secure/private.key" -cert "$originalFolder/secure/cacert.pem" -config "$originalFolder/config/ACR.cnf" -in csr.pem -out cacert.pem -extensions myCA_extensions -days 365 -batch
+  openssl ca -keyfile "$originalFolder/secure/private.key" -cert "$originalFolder/secure/cacert.pem" -config "$originalFolder/config/ACI.cnf" -in csr.pem -out "$currentFolder/cacert.pem" -extensions myCA_extensions -batch
 
   # Copier les fichiers cacert.pem et private.key dans un dossier sécurisé
-  cp cacert.pem $secureFolder
-  cp private.key $secureFolder
+  cp "$currentFolder/cacert.pem" $secureFolder
+  cp "$currentFolder/private.key" $secureFolder
 }
 
 create_root_ca
