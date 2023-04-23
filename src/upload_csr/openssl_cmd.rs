@@ -39,9 +39,9 @@ pub (crate) async fn check_csr(email:String, csr_file_path: &str) -> bool {
 
 pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
 
-    let default_file = "/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/Certificats/offline";
-    let conf_file = "/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/Certificats/offline/config/openssl.cnf";
-    let output_file = "/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/";
+    let default_file = "Certificats/offline";
+    let conf_file = "Certificats/offline/config/openssl.cnf";
+    let output_file = "new_certs_client/";
     
     Command::new("openssl")
         .arg("ca")
