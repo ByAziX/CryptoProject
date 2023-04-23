@@ -1,9 +1,18 @@
-use actix_multipart::form::tempfile::TempFileConfig;
-use actix_web::{
-    cookie::Cookie, get, middleware, post, web, App, HttpRequest, HttpResponse, HttpServer,
+use actix_multipart::{
+    form::{
+        tempfile::{TempFile, TempFileConfig},
+        MultipartForm,
+    },
+    Multipart,
 };
+use actix_web::{
+    cookie::Cookie, get, middleware, post, web, App, Error, HttpRequest, HttpResponse, HttpServer,
+    Responder,
+};
+use futures_util::{StreamExt, TryStreamExt};
 use tera::Tera;
 
+mod openssl_cmd;
 mod otp;
 mod upload_csr;
 
@@ -17,6 +26,11 @@ struct FormDataOtp {
     otp: String,
 }
 
+#[derive(Debug, MultipartForm)]
+pub struct UploadForm {
+    #[multipart(rename = "file")]
+    file: Option<TempFile>,
+}
 
 #[get("/")]
 // Traitement de la requête GET pour la route /
@@ -67,7 +81,7 @@ async fn verification_otp(
         let verify_otp = otp::verify_otp(email.to_string(), form.otp.as_bytes()).await;
 
         if verify_otp {
-            let context = tera::Context::from_serialize(serde_json::json!({ "email": email}))
+            let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
                 .expect("Erreur lors de la sérialisation des données");
             let rendered = tera
                 .render("upload_csr.html", &context)
@@ -77,15 +91,52 @@ async fn verification_otp(
         } else {
             // httpResponse error message
             HttpResponse::Ok().body("404 error OTP incorrect")
-
         }
-        
     } else {
         HttpResponse::Ok().body("404 error mail not found in")
     }
 }
+#[post("/certificate")]
+async fn save_files(
+    tera: web::Data<Tera>,
+    MultipartForm(form): MultipartForm<UploadForm>,
+    req: HttpRequest,
+) -> HttpResponse {
+    let cookie = req.cookie("email");
+
+    if let Some(cookie) = cookie {
+        let email = cookie.value();
+
+        if let Some(file) = form.file {
+            let path = format!("./tmp/{}.csr", email);
+            file.file.persist(path.clone()).unwrap();
+
+            if openssl_cmd::check_csr(email.to_string(), &path).await {
+                openssl_cmd::create_cert(email.to_string(), &path).await;
+                upload_csr::send_cert(email.to_string());
+
+                let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
+                .expect("Erreur lors de la sérialisation des données");
+            let rendered = tera
+                .render("upload_csr.html", &context)
+                .expect("Erreur lors du rendu du template uploadCSR");
+
+            HttpResponse::Ok().cookie(cookie).body(rendered);
 
 
+                log::info!("CSR is valid");
+            } else {
+                log::info!("CSR is not valid");
+            }
+        } else {
+            println!("The vector is empty");
+        }
+    } else {
+        HttpResponse::Ok().body("404 error mail not found in");
+    }
+
+    HttpResponse::Ok().body("ok")
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -105,7 +156,7 @@ async fn main() -> std::io::Result<()> {
             .service(index)
             .service(email_submit_otp_generation)
             .service(verification_otp)
-            .service(upload_csr::save_files)
+            .service(save_files)
             .service(
                 actix_files::Files::new("/static", "./src/static")
                     .show_files_listing()

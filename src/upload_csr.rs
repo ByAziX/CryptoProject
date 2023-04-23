@@ -1,4 +1,3 @@
-pub mod openssl_cmd;
 
 extern crate openssl;
 
@@ -22,49 +21,10 @@ use actix_web::{post, Error, HttpRequest, HttpResponse, Responder};
 
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
-#[derive(Debug, MultipartForm)]
-pub struct UploadForm {
-    #[multipart(rename = "file")]
-    files: Vec<TempFile>,
-}
-
-#[post("/upload/certificate")]
-pub async fn save_files(
-    MultipartForm(form): MultipartForm<UploadForm>,
-    req: HttpRequest,
-) -> Result<impl Responder, Error> {
-    let cookie = req.cookie("email");
-    
-    if let Some(cookie) = cookie {
-        let email = cookie.value();
-
-        for f in form.files {
-            
-            let path = format!("./tmp/{}", email.to_string() + ".csr");
-            log::info!("saving to {path}");
-            f.file.persist(path.clone()).unwrap();
-
-            if openssl_cmd::check_csr(email.to_string(), &path).await == true {
-                
-                openssl_cmd::create_cert(email.to_string(),&path).await;
-                
-                log::info!("csr is valid");
-            } else {
-                log::info!("csr is not valid");
-            }
-            
-        }
-        
-    } else {
-        return Ok(HttpResponse::Unauthorized());
-    }
-
-    Ok(HttpResponse::Ok())
-}
 
 
 
-fn send_cert(email_user: String) {
+pub fn send_cert(email_user: String) {
     let filename = email_user.clone() + ".pem";
     let file_body = fs::read("/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/".to_owned()+&filename).unwrap();
     let content_type = ContentType::parse("application/x-pem-file").unwrap();

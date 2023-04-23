@@ -10,8 +10,8 @@
 <body>
     <h1>Formulaire de demande de certificat SSL</h1>
     
-    <form action="/upload/certificate" method="post" enctype="multipart/form-data">
-        <input type="file" multiple name="file"/>
+    <form action="/certificate" method="post" id="csrForm" enctype="multipart/form-data">
+        <input type="file" name="file"/>
         <span>{{email}}</span>
         <button type="submit">Submit</button>
     </form>
