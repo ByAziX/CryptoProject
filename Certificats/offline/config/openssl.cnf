@@ -23,7 +23,7 @@ organizationName = optional
 organizationalUnitName = optional
 
 [ myCA_extensions ]
-basicConstraints = critical, CA:false,pathlen:1
+basicConstraints = critical, CA:false
 
 [ req ]
 req_extensions = v3_req
