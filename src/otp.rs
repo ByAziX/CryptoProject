@@ -1,6 +1,8 @@
-use std::fs::OpenOptions;
+use std::fs::{OpenOptions, self};
 use std::io::Read;
 use std::{fs::File, io::Write};
+use lettre::message::{Attachment, MultiPart, SinglePart};
+use lettre::message::header::ContentType;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -13,19 +15,18 @@ use lettre::{Message, SmtpTransport, Transport};
 
 // Structure pour représenter les données du formulaire
 #[derive(Serialize, Deserialize)]
-pub(crate) struct FormData {
+pub struct FormData {
     email: String,
     otp: String,
 }
 
 
 // generate_otp() génère un OTP aléatoire et l'envoie par e-mail à l'utilisateur
-pub(crate) async fn generate_otp(email: String) {
+pub async fn generate_otp(email: String) {
     let mut rng = rand::thread_rng();
     let otp: u32 = rng.gen_range(100000..999999);
     let otp = otp.to_string();
     let otp = otp.as_bytes();
-    send_otp_email(email.clone(), otp.clone()).await;
 
     let mut file = File::open("otp.txt").unwrap();
     let mut contents = String::new();
@@ -44,6 +45,9 @@ pub(crate) async fn generate_otp(email: String) {
             updated_contents.push('\n');
         }
 
+        send_otp_email(email, otp).await;
+
+
         let mut file = File::create("otp.txt").expect("Failed to create file otp.txt");
         file.write_all(updated_contents.as_bytes())
             .expect("Failed to write to file otp.txt");
@@ -58,7 +62,6 @@ pub(crate) async fn generate_otp(email: String) {
         file.write_all(otp).unwrap();
         file.write_all(b"\n").unwrap();
     }
-    
     
 
     println!("Email et OTP ajoutés au fichier otp.txt avec succès!");
@@ -89,7 +92,7 @@ async fn send_otp_email(email_user:String,otp: &[u8]) {
 }
 
 // verify_otp() vérifie si l'OTP entré par l'utilisateur correspond à celui envoyé par e-mail
-pub(crate) async fn verify_otp(email: String,otp: &[u8]) -> bool {
+pub async fn verify_otp(email: String,otp: &[u8]) -> bool {
     let mut file = File::open("otp.txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
@@ -110,3 +113,5 @@ pub(crate) async fn verify_otp(email: String,otp: &[u8]) -> bool {
     return false;
 
 }
+
+

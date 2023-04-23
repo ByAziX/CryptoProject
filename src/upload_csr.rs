@@ -23,17 +23,18 @@ use actix_web::{post, Error, HttpRequest, HttpResponse, Responder};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
 #[derive(Debug, MultipartForm)]
-pub(crate) struct UploadForm {
+pub struct UploadForm {
     #[multipart(rename = "file")]
     files: Vec<TempFile>,
 }
 
 #[post("/upload/certificate")]
-pub(crate) async fn save_files(
+pub async fn save_files(
     MultipartForm(form): MultipartForm<UploadForm>,
     req: HttpRequest,
 ) -> Result<impl Responder, Error> {
     let cookie = req.cookie("email");
+    
     if let Some(cookie) = cookie {
         let email = cookie.value();
 
@@ -44,15 +45,15 @@ pub(crate) async fn save_files(
             f.file.persist(path.clone()).unwrap();
 
             if openssl_cmd::check_csr(email.to_string(), &path).await == true {
-                log::info!("csr is valid");
+                
                 openssl_cmd::create_cert(email.to_string(),&path).await;
-                send_cert(email.to_string());
+                
+                log::info!("csr is valid");
             } else {
                 log::info!("csr is not valid");
             }
             
         }
-
         
     } else {
         return Ok(HttpResponse::Unauthorized());
@@ -64,12 +65,11 @@ pub(crate) async fn save_files(
 
 
 fn send_cert(email_user: String) {
-    let filename = String::from("/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/").to_owned() + &email_user + ".pem";
-    let file_body = fs::read(filename.clone()).unwrap();
+    let filename = email_user.clone() + ".pem";
+    let file_body = fs::read("/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/".to_owned()+&filename).unwrap();
     let content_type = ContentType::parse("application/x-pem-file").unwrap();
     let attachment = Attachment::new(filename).body(file_body, content_type);
 
-    println!("{:?}", attachment);
 
     let email = Message::builder()
         .from("projetcryptoca@gmail.com".parse().unwrap())
