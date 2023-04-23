@@ -1,6 +1,7 @@
 #!/bin/bash
 
-originalFolder="/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/Certificats/offline"
+originalFolder=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
 cd $originalFolder
 
 create_root_ca() {
@@ -16,14 +17,11 @@ create_root_ca() {
   fi
 
   # Créer un dossier pour stocker les fichiers de l'ACR
-  mkdir ACR
+  mkdir -p ACR/config
   cd ACR
-  mkdir config
-
   # Générer une clé privée pour l'ACR
 
   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
-
 
   # Créer un fichier de configuration pour l'ACR
   cp "$configFolder/ACR.cnf" "$currentFolder/config/openssl.cnf"
@@ -33,7 +31,9 @@ create_root_ca() {
 
   echo "creation des dossiers"
   mkdir newcerts
+
   touch index serial && echo "01" >serial
+
   # Signer la demande de certificat avec elle-même pour créer le certificat de l'ACR
   openssl ca -selfsign -keyfile private.key -config "$currentFolder/config/openssl.cnf" -in csr.pem -out cacert.pem -extensions myCA_extensions -batch
   # Copier les fichiers cacert.pem et private.key dans un dossier sécurisé
@@ -55,10 +55,8 @@ create_intermediate_ca() {
 
   # Créer un dossier pour stocker les fichiers de l'ACR
 
-  mkdir ACI
+  mkdir -p ACI/config
   cd ACI
-  mkdir config
-
   # Générer une clé privée pour l'ACR
 
   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
