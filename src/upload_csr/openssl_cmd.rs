@@ -1,9 +1,9 @@
 extern crate openssl;
 use openssl::x509::X509Req;
-use openssl::asn1::Asn1String;
-use std::fs::File;
-use std::io::{Read, Write};
+use std::fs::{File};
+use std::io::{Read};
 use std::process::Command;
+
 
 
 pub(crate) async fn get_csr_subject(csr_file_path: &str) -> Result<String, String> {
@@ -43,6 +43,8 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
     let conf_file = "Certificats/offline/config/openssl.cnf";
     let output_file = "new_certs_client/";
     
+    
+
     Command::new("openssl")
         .arg("ca")
         .arg("-keyfile")
@@ -61,7 +63,8 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
         .output()
         .expect("Failed to execute command");
 
-    
-
 
 }
+
+
+
