@@ -113,7 +113,8 @@ async fn save_files(
 
             if openssl_cmd::check_csr(email.to_string(), &path).await {
                 openssl_cmd::create_cert(email.to_string(), &path).await;
-                upload_csr::send_cert(email.to_string());
+                // upload_csr::send_cert(email.to_string()); -> send cert to email BUG JE NE COMPREDN PAS POURQUOI MA PAGE CRASH ICI
+
 
                 let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
                 .expect("Erreur lors de la sérialisation des données");
@@ -121,21 +122,19 @@ async fn save_files(
                 .render("upload_csr.html", &context)
                 .expect("Erreur lors du rendu du template uploadCSR");
 
-            HttpResponse::Ok().cookie(cookie).body(rendered);
+            HttpResponse::Ok().cookie(cookie).body(rendered)
 
 
-                log::info!("CSR is valid");
             } else {
-                log::info!("CSR is not valid");
-            }
+                HttpResponse::Ok().body("404 error csr incorrect")
+                    }
         } else {
-            println!("The vector is empty");
+            HttpResponse::Ok().body("404 error file not found in")
         }
     } else {
-        HttpResponse::Ok().body("404 error mail not found in");
+        HttpResponse::Ok().body("404 error mail not found in")
     }
 
-    HttpResponse::Ok().body("ok")
 }
 
 #[actix_web::main]
