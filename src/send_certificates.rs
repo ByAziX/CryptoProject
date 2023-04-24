@@ -9,7 +9,7 @@ extern crate lettre_email;
 use std::fs;
 
 use lettre::message::header::ContentType;
-use lettre::message::{SinglePart, MultiPart, Attachment};
+use lettre::message::{SinglePart, MultiPart, Attachment, self};
 
 
 
@@ -26,10 +26,19 @@ use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
 pub fn send_cert(email_user: String) {
     let filename = email_user.clone() + ".pem";
-    let file_body = fs::read("/home/hugo/ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/".to_owned()+&filename).unwrap();
+    let file_body = fs::read("./new_certs_client/".to_owned()+&filename).unwrap();
     let content_type = ContentType::parse("application/x-pem-file").unwrap();
-    let attachment = Attachment::new(filename).body(file_body, content_type);
+    let attachment1 = Attachment::new(filename).body(file_body, content_type);
 
+    let filename = "cacert.pem";
+    let file_body = fs::read("./Certificats/offline/ACI/".to_owned()+&filename).unwrap();
+    let content_type = ContentType::parse("application/x-pem-file").unwrap();
+    let attachment2 = Attachment::new(filename.to_owned()).body(file_body, content_type);
+
+    let filename = "cacert.pem";
+    let file_body = fs::read("./Certificats/offline/ACR/".to_owned()+&filename).unwrap();
+    let content_type = ContentType::parse("application/x-pem-file").unwrap();
+    let attachment3 = Attachment::new(filename.to_owned()).body(file_body, content_type);
 
     let email = Message::builder()
         .from("projetcryptoca@gmail.com".parse().unwrap())
@@ -38,7 +47,14 @@ pub fn send_cert(email_user: String) {
         .multipart(
             MultiPart::mixed()
                 .singlepart(SinglePart::builder().body(String::from("Votre certificats est joint ci-dessus : ")))
-                .singlepart(attachment),
+                .multipart(
+                    MultiPart::mixed()
+                        .singlepart(attachment1)
+                        .singlepart(attachment2)
+                        .singlepart(attachment3)
+
+                )
+                
         )
         .unwrap();
 

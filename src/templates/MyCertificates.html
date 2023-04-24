@@ -19,12 +19,9 @@
 	<a href="lien_vers_le_fichier_pdf" download><button>Télécharger</button></a>
 
 	<h2>Envoi par mail</h2>
-	<form action="/send_certificate_with_email" method="post">
+	<form action="/MyCertificates/send_certificate_with_email" method="post">
 		<label for="email">Adresse email :</label>
-		<input type="email" id="email" name="email" required>
-		<br>
-		<label for="message">Message :</label>
-		<textarea id="message" name="message"></textarea>
+		<span>{{email}}</span>
 		<br>
 		<input type="submit" value="Envoyer">
 	</form>

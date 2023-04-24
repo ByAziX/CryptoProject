@@ -132,7 +132,7 @@ async fn create_certificates(
     }
 }
 
-#[post("/send_certificate_with_email")]
+#[post("/MyCertificates/send_certificate_with_email")]
 async fn send_all_certificates_to_user(
     tera: web::Data<Tera>,
     req: HttpRequest,
