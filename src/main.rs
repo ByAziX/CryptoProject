@@ -14,7 +14,7 @@ use tera::Tera;
 
 mod openssl_cmd;
 mod otp;
-mod upload_csr;
+mod send_certificates;
 
 #[derive(Debug, serde::Deserialize)]
 struct FormDataEmail {
@@ -96,8 +96,8 @@ async fn verification_otp(
         HttpResponse::Ok().body("404 error mail not found in")
     }
 }
-#[post("/certificate")]
-async fn save_files(
+#[post("/MyCertificates")]
+async fn create_certificates(
     tera: web::Data<Tera>,
     MultipartForm(form): MultipartForm<UploadForm>,
     req: HttpRequest,
@@ -113,28 +113,48 @@ async fn save_files(
 
             if openssl_cmd::check_csr(email.to_string(), &path).await {
                 openssl_cmd::create_cert(email.to_string(), &path).await;
-                // upload_csr::send_cert(email.to_string()); -> send cert to email BUG JE NE COMPREDN PAS POURQUOI MA PAGE CRASH ICI
-
 
                 let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
-                .expect("Erreur lors de la sérialisation des données");
-            let rendered = tera
-                .render("upload_csr.html", &context)
-                .expect("Erreur lors du rendu du template uploadCSR");
+                    .expect("Erreur lors de la sérialisation des données");
+                let rendered = tera
+                    .render("MyCertificates.html", &context)
+                    .expect("Erreur lors du rendu du template uploadCSR");
 
-            HttpResponse::Ok().cookie(cookie).body(rendered)
-
-
+                HttpResponse::Ok().cookie(cookie).body(rendered)
             } else {
                 HttpResponse::Ok().body("404 error csr incorrect")
-                    }
+            }
         } else {
             HttpResponse::Ok().body("404 error file not found in")
         }
     } else {
         HttpResponse::Ok().body("404 error mail not found in")
     }
+}
 
+#[post("/send_certificate_with_email")]
+async fn send_all_certificates_to_user(
+    tera: web::Data<Tera>,
+    req: HttpRequest,
+) -> HttpResponse {
+    let cookie = req.cookie("email");
+
+    if let Some(cookie) = cookie {
+        let email = cookie.value();
+
+        send_certificates::send_cert(email.to_string());
+
+        let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
+        .expect("Erreur lors de la sérialisation des données");
+         let rendered = tera
+        .render("MyCertificates.html", &context)
+        .expect("Erreur lors du rendu du template uploadCSR");
+
+    HttpResponse::Ok().cookie(cookie).body(rendered)
+        
+    } else {
+        HttpResponse::Ok().body("404 error mail not found in")
+    }
 }
 
 #[actix_web::main]
@@ -155,7 +175,8 @@ async fn main() -> std::io::Result<()> {
             .service(index)
             .service(email_submit_otp_generation)
             .service(verification_otp)
-            .service(save_files)
+            .service(create_certificates)
+            .service(send_all_certificates_to_user)
             .service(
                 actix_files::Files::new("/static", "./src/static")
                     .show_files_listing()
