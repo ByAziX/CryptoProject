@@ -33,12 +33,12 @@ pub fn send_cert(email_user: String) {
     let filename = "cacert.pem";
     let file_body = fs::read("./Certificats/offline/ACI/".to_owned()+&filename).unwrap();
     let content_type = ContentType::parse("application/x-pem-file").unwrap();
-    let attachment2 = Attachment::new(filename.to_owned()).body(file_body, content_type);
+    let attachment2 = Attachment::new("ISEN_ACI.pem".to_owned()).body(file_body, content_type);
 
     let filename = "cacert.pem";
     let file_body = fs::read("./Certificats/offline/ACR/".to_owned()+&filename).unwrap();
     let content_type = ContentType::parse("application/x-pem-file").unwrap();
-    let attachment3 = Attachment::new(filename.to_owned()).body(file_body, content_type);
+    let attachment3 = Attachment::new("ISEN_ACR.pem".to_owned()).body(file_body, content_type);
 
     let email = Message::builder()
         .from("projetcryptoca@gmail.com".parse().unwrap())

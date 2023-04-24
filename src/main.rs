@@ -14,7 +14,7 @@ use tera::Tera;
 
 mod openssl_cmd;
 mod otp;
-mod send_certificates;
+mod certificates;
 
 #[derive(Debug, serde::Deserialize)]
 struct FormDataEmail {
@@ -142,7 +142,7 @@ async fn send_all_certificates_to_user(
     if let Some(cookie) = cookie {
         let email = cookie.value();
 
-        send_certificates::send_cert(email.to_string());
+        certificates::send_cert(email.to_string());
 
         let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
         .expect("Erreur lors de la sérialisation des données");
