@@ -21,16 +21,31 @@ openssl ca -config <config_file> -revoke <certificate_file>
 openssl ca -config <config_file> -gencrl -out <crl_file>
 
 
+# oscp
+
+https://bhashineen.medium.com/create-your-own-ocsp-server-ffb212df8e63*
+
+
+# Start OCSP Server. Switch to a new terminal and run
+
+openssl ocsp -index index -port 8888 -rsigner ../oscp/ocspSigning.crt -rkey ../oscp/ocspSigning.key -CA cacert.pem -text -out ../oscp/log.txt &
+
+# Verify Certificate Revocation. Switch to a new terminal and run
+
+openssl ocsp -CAfile cacert.pem -issuer ../ACR/cacert.pem -cert ../../../new_certs_client/hugo.millet@isen.yncrea.fr.pem -url http://127.0.0.1:8888 -resp_text -noverify
+
+# revoke
+openssl ca -keyfile private.key -cert cacert.pem -revoke ../../../new_certs_client/hugo.millet@isen.yncrea.fr.pem -config config/openssl.cnf
 
 
 
+# Then restart the OCSP server.
 
+openssl ocsp -index index -port 8888 -rsigner ../oscp/ocspSigning.crt -rkey ../oscp/ocspSigning.key -CA cacert.pem -text -out ../oscp/log.txt &
 
+# Verify Certificate Revocation. Switch to a new terminal and run
 
-
-
-
-
+openssl ocsp -CAfile cacert.pem -issuer ../ACR/cacert.pem -cert ../../../new_certs_client/hugo.millet@isen.yncrea.fr.pem -url http://127.0.0.1:8888 -resp_text -noverify
 
 
 

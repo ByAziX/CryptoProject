@@ -3,7 +3,7 @@ default_ca = myCA
 
 [ myCA ]
 dir = Certificats/offline/ACI/
-new_certs_dir = Certificats/client/
+new_certs_dir = $dir/newcerts
 database = $dir/index
 serial = $dir/serial
 private_key = $dir/private.key

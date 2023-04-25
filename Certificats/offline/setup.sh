@@ -77,6 +77,27 @@ create_intermediate_ca() {
   cp "$currentFolder/private.key" $secureFolder
 }
 
+oscp(){
+  cd $originalFolder
+
+  if [ -d "oscp" ]; then
+    # delete the ACR folder
+    rm -rf oscp
+
+  fi
+
+  mkdir oscp 
+  cd oscp 
+
+  openssl req -new -nodes -out ocspSigning.csr  -keyout ocspSigning.key -config ../ACI/config/openssl.cnf -extensions v3_OCSP
+
+
+  cd ../ACI/
+
+  openssl ca -keyfile private.key -cert cacert.pem -in ../oscp/ocspSigning.csr -out ../oscp/ocspSigning.crt -config ./config/openssl.cnf -batch
+
+}
+
 create_root_ca
 cd $originalFolder
 # print a blank line
@@ -84,3 +105,4 @@ echo "Root CA created"
 echo ""
 echo ""
 create_intermediate_ca
+oscp
