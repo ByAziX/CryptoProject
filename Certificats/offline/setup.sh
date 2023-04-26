@@ -78,6 +78,9 @@ create_intermediate_ca() {
 }
 
 oscp(){
+  currentFolder="$originalFolder/ocsp"
+  configFolder="$originalFolder/config"
+
   cd $originalFolder
 
   if [ -d "oscp" ]; then
@@ -86,15 +89,25 @@ oscp(){
 
   fi
 
-  mkdir oscp 
-  cd oscp 
+  mkdir ocsp 
+  mkdir -p ocsp/config
 
-  openssl req -new -nodes -out ocspSigning.csr  -keyout ocspSigning.key -config ../ACI/config/openssl.cnf -extensions v3_OCSP
+  cd ocsp 
+
+   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
+
+
+   cp "$configFolder/ocsp.cnf" "$currentFolder/config/openssl.cnf"
+   echo "creation de l'oscp"
+  # Créer une demande de certificat pour l'ACR
+  openssl req -new -key private.key -out csr.pem -config "$currentFolder/config/openssl.cnf"
+
+  openssl req -new -nodes -out ocspSigning.csr  -keyout ocspSigning.key -config ../ocsp/config/openssl.cnf -extensions v3_OCSP
 
 
   cd ../ACI/
 
-  openssl ca -keyfile private.key -cert cacert.pem -in ../oscp/ocspSigning.csr -out ../oscp/ocspSigning.crt -config ./config/openssl.cnf -batch
+  openssl ca -keyfile private.key -cert cacert.pem -in ../ocsp/ocspSigning.csr -out ../ocsp/ocspSigning.crt -config ./config/openssl.cnf -batch
 
 }
 

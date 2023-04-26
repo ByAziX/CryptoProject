@@ -2,14 +2,14 @@
 default_ca = myCA
 
 [ myCA ]
-dir = .
+dir = Certificats/offline/ACI/
 new_certs_dir = $dir/newcerts
 database = $dir/index
 serial = $dir/serial
 private_key = $dir/private.key
 certificate = $dir/cacert.pem
 default_md = sha256
-default_days =  365
+default_days = 90
 policy = myCA_policy
 x509_extensions = myCA_extensions
 copy_extensions = copy
@@ -18,13 +18,12 @@ copy_extensions = copy
 commonName = supplied
 stateOrProvinceName = optional
 countryName = optional
-emailAddress = optional
+emailAddress = supplied
 organizationName = optional
 organizationalUnitName = optional
 
 [ myCA_extensions ]
-basicConstraints = critical, CA:true,pathlen:0
-
+basicConstraints = critical, CA:false
 
 [ req ]
 req_extensions = v3_req
@@ -39,13 +38,18 @@ stateOrProvinceName    = France
 localityName           = Toulon
 organizationName       = ISEN
 organizationalUnitName = ISEN
-commonName             = ISEN ACI
+commonName             = ISEN OSCP
 emailAddress           = hugo.millet@isen.yncrea.fr
 
 
-
 [ v3_req ]
-basicConstraints = CA:true
-keyUsage = digitalSignature, keyEncipherment, keyCertSign
+basicConstraints = CA:false
+keyUsage = digitalSignature, keyEncipherment
 
+[ usr_cert ]
+authorityInfoAccess = OCSP;URI:http://127.0.0.1:8888
 
+[ v3_OCSP ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = OCSPSigning

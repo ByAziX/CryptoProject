@@ -28,7 +28,7 @@ https://bhashineen.medium.com/create-your-own-ocsp-server-ffb212df8e63*
 
 # Start OCSP Server. Switch to a new terminal and run
 
-openssl ocsp -index index -port 8888 -rsigner ../oscp/ocspSigning.crt -rkey ../oscp/ocspSigning.key -CA cacert.pem -text -out ../oscp/log.txt &
+openssl ocsp -index index -port 8888 -rsigner ../ocsp/ocspSigning.crt -rkey ../ocsp/ocspSigning.key -CA cacert.pem -text -out ../ocsp/log.txt &
 
 # Verify Certificate Revocation. Switch to a new terminal and run
 
@@ -41,7 +41,7 @@ openssl ca -keyfile private.key -cert cacert.pem -revoke ../../../new_certs_clie
 
 # Then restart the OCSP server.
 
-openssl ocsp -index index -port 8888 -rsigner ../oscp/ocspSigning.crt -rkey ../oscp/ocspSigning.key -CA cacert.pem -text -out ../oscp/log.txt &
+openssl ocsp -index index -port 8888 -rsigner ../ocsp/ocspSigning.crt -rkey ../ocsp/ocspSigning.key -CA cacert.pem -text -out ../ocsp/log.txt &
 
 # Verify Certificate Revocation. Switch to a new terminal and run
 
