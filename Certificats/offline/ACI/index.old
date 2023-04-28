@@ -2,4 +2,5 @@ V	240427143515Z		01	unknown	/CN=ISEN ACI/ST=France/C=FR/emailAddress=hugo.millet
 V	240427143515Z		02	unknown	/CN=ISEN OSCP/ST=France/C=FR/emailAddress=hugo.millet@isen.yncrea.fr/O=ISEN/OU=ISEN
 R	230727143544Z	230428143708Z	03	unknown	/CN=hugo/emailAddress=hugo.millet@isen.yncrea.fr
 R	230727145054Z	230428145212Z	04	unknown	/CN=hugo/emailAddress=hugo.millet@isen.yncrea.fr
-V	230727145554Z		05	unknown	/CN=hugo/emailAddress=hugo.millet@isen.yncrea.fr
+R	230727145554Z	230428145749Z	05	unknown	/CN=hugo/emailAddress=hugo.millet@isen.yncrea.fr
+V	230727183307Z		06	unknown	/CN=hugo/emailAddress=hugo.millet@isen.yncrea.fr

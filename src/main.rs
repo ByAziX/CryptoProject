@@ -157,7 +157,7 @@ async fn send_all_certificates_to_user(
     }
 }
 
-#[post("/MyCertificates/revoke_certificate")]
+#[post("/revoke_certificate")]
 async fn revoke_certificate(
     tera: web::Data<Tera>,
     req: HttpRequest,

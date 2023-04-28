@@ -15,6 +15,14 @@
         <span>{{email}}</span>
         <button type="submit">Submit</button>
     </form>
+
+    <h2>Révoquer un certificat</h2>
+	<form action="/revoke_certificate" method="post">
+		<label for="email">Adresse email :</label>
+		<span>{{email}}</span>
+		<br>
+		<input type="submit" value="Envoyer">
+	</form>
 </body>
 </html>
 
