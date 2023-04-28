@@ -157,6 +157,31 @@ async fn send_all_certificates_to_user(
     }
 }
 
+#[post("/MyCertificates/revoke_certificate")]
+async fn revoke_certificate(
+    tera: web::Data<Tera>,
+    req: HttpRequest,
+) -> HttpResponse {
+    let cookie = req.cookie("email");
+
+    if let Some(cookie) = cookie {
+        let email = cookie.value();
+
+        openssl_cmd::revoke_cert(email.to_string());
+
+        let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
+        .expect("Erreur lors de la sérialisation des données");
+         let rendered = tera
+        .render("MyCertificates.html", &context)
+        .expect("Erreur lors du rendu du template uploadCSR");
+
+    HttpResponse::Ok().cookie(cookie).body(rendered)
+        
+    } else {
+        HttpResponse::Ok().body("404 error mail not found in")
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
@@ -177,6 +202,7 @@ async fn main() -> std::io::Result<()> {
             .service(verification_otp)
             .service(create_certificates)
             .service(send_all_certificates_to_user)
+            .service(revoke_certificate)
             .service(
                 actix_files::Files::new("/static", "./src/static")
                     .show_files_listing()

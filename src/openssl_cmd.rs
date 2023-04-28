@@ -66,5 +66,25 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
 
 }
 
+pub fn revoke_cert(email: String){
+    let default_file = "Certificats/offline";
+    let conf_file = "Certificats/offline/config/ocsp.cnf";
+    let output_file = "new_certs_client/";
+
+    Command::new("openssl")
+        .arg("ca")
+        .arg("-keyfile")
+        .arg(default_file.to_owned()+"/ACI/private.key")
+        .arg("-cert")
+        .arg(default_file.to_owned()+"/ACI/cacert.pem")
+        .arg("-config")
+        .arg(conf_file)
+        .arg("-revoke")
+        .arg(output_file.to_owned()+&email+".pem")
+        .output()
+        .expect("Failed to execute command");                                                                                                                                
+
+    
+}
 
 

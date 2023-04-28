@@ -74,3 +74,5 @@ pub fn send_cert(email_user: String) {
                 Err(e) => panic!("Could not send email: {:?}", e),
             }
 }
+
+

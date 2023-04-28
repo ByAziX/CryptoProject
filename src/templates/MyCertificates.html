@@ -9,9 +9,9 @@
 <body>
 	<h1>Liste de certificats</h1>
 	<ul>
-		<li>Certificat 1</li>
-		<li>Certificat 2</li>
-		<li>Certificat 3</li>
+		<li>{{email}}.pem</li>
+		<li>ISEN_ACR.pem</li>
+		<li>ISEN_ACI.pem</li>
 	</ul>
 
 	<h2>Téléchargement</h2>
@@ -20,6 +20,14 @@
 
 	<h2>Envoi par mail</h2>
 	<form action="/MyCertificates/send_certificate_with_email" method="post">
+		<label for="email">Adresse email :</label>
+		<span>{{email}}</span>
+		<br>
+		<input type="submit" value="Envoyer">
+	</form>
+
+	<h2>Révoquer un certificat</h2>
+	<form action="/MyCertificates/revoke_certificate" method="post">
 		<label for="email">Adresse email :</label>
 		<span>{{email}}</span>
 		<br>
