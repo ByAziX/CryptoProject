@@ -11,7 +11,7 @@ certificate = $dir/cacert.pem
 default_md = sha256
 default_days = 90
 policy = myCA_policy
-x509_extensions = myCA_extensions
+x509_extensions = v3_OCSP
 copy_extensions = copy
 
 [ myCA_policy ]
@@ -21,9 +21,6 @@ countryName = optional
 emailAddress = supplied
 organizationName = optional
 organizationalUnitName = optional
-
-[ myCA_extensions ]
-basicConstraints = critical, CA:false
 
 [ req ]
 req_extensions = v3_req
@@ -50,6 +47,6 @@ keyUsage = digitalSignature, keyEncipherment
 authorityInfoAccess = OCSP;URI:http://127.0.0.1:8888
 
 [ v3_OCSP ]
-basicConstraints = CA:FALSE
+basicConstraints = critical, CA:false
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = OCSPSigning

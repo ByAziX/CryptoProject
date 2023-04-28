@@ -24,6 +24,8 @@ organizationalUnitName = optional
 
 [ myCA_extensions ]
 basicConstraints = critical, CA:true,pathlen:0
+authorityInfoAccess = OCSP;URI:http://127.0.0.1:8888
+
 
 
 [ req ]
@@ -47,7 +49,3 @@ emailAddress           = hugo.millet@isen.yncrea.fr
 [ v3_req ]
 basicConstraints = CA:true
 keyUsage = digitalSignature, keyEncipherment, keyCertSign
-
-
-[ocsp_ext]
-authorityInfoAccess = OCSP;URI:http://127.0.0.1:8888

@@ -99,7 +99,7 @@ oscp(){
 
    cp "$configFolder/ocsp.cnf" "$currentFolder/config/openssl.cnf"
    echo "creation de l'oscp"
-  # Créer une demande de certificat pour l'ACR
+
   openssl req -new -key private.key -out csr.pem -config "$currentFolder/config/openssl.cnf"
 
   openssl req -new -nodes -out ocspSigning.csr  -keyout ocspSigning.key -config ../ocsp/config/openssl.cnf -extensions v3_OCSP

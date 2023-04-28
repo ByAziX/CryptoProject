@@ -35,7 +35,7 @@ openssl ocsp -index index -port 8888 -rsigner ../ocsp/ocspSigning.crt -rkey ../o
 openssl ocsp -CAfile cacert.pem -issuer cacert.pem -cert ./newcerts/03.pem -url http://127.0.0.1:8888 -resp_text -noverify
 
 # revoke
-openssl ca -keyfile private.key -cert cacert.pem -revoke ../../../new_certs_client/hugo.millet@isen.yncrea.fr.pem -config config/openssl.cnf
+openssl ca -keyfile private.key -cert cacert.pem -revoke ./newcerts/03.pem -config config/openssl.cnf                                                                                                                                   
 
 
 

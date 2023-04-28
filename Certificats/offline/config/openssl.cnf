@@ -24,6 +24,7 @@ organizationalUnitName = optional
 
 [ myCA_extensions ]
 basicConstraints = critical, CA:false
+authorityInfoAccess = OCSP;URI:http://127.0.0.1:8888
 
 
 [ req ]
