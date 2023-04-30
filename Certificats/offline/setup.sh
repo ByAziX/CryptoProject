@@ -21,7 +21,7 @@ create_root_ca() {
   cd ACR
   # Générer une clé privée pour l'ACR
 
-  openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
+  openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out private.key
 
   # Créer un fichier de configuration pour l'ACR
   cp "$configFolder/ACR.cnf" "$currentFolder/config/openssl.cnf"
@@ -59,7 +59,7 @@ create_intermediate_ca() {
   cd ACI
   # Générer une clé privée pour l'ACR
 
-  openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
+  openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out private.key
 
   cp "$configFolder/ACI.cnf" "$currentFolder/config/openssl.cnf"
   echo "creation de l'ACI"
@@ -94,7 +94,7 @@ oscp(){
 
   cd ocsp 
 
-   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out private.key
+   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out private.key
 
 
    cp "$configFolder/ocsp.cnf" "$currentFolder/config/openssl.cnf"
