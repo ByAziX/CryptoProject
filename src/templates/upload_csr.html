@@ -11,9 +11,8 @@
     <h1>Formulaire de demande de certificat SSL</h1>
     
     <form action="/MyCertificates" method="post" id="csrForm" enctype="multipart/form-data">
-        <input type="file" name="file"/>
+        <input type="file" name="file" required/>
         <span>{{email}}</span><br>
-        <span id ="error_msg" name="error_msg">{{error_msg}}</span>
         <button type="submit">Submit</button>
     </form>
 
@@ -23,14 +22,17 @@
 		<span>{{email}}</span>
 		<br>
         <label for="otp" id="otp_label">OTP de révocation :</label>
-        <input type="text" id="otp" name="otp">
+        <input type="text" id="otp" name="otp" required>
         <br>
-        <label for="motif" id="message_label">Motif de révocation :</label>
+        <label for="motif" id="message_label" required>Motif de révocation :</label>
         <input type="text" id="message" name="message">
         <br>
         
 		<button type="submit">Submit</button>
 	</form>
+
+    <span id ="error_msg" name="error_msg">{{error_msg}}</span>
+
 </body>
 </html>
 

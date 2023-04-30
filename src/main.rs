@@ -1,6 +1,7 @@
 mod certificates;
 mod openssl_cmd;
 mod otp;
+mod jwt;
 
 use std::env;
 
@@ -19,13 +20,9 @@ use actix_web::{
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     post, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder, Result,
 };
-use serde::{Serialize, Deserialize};
 use tera::Tera;
 
-use jsonwebtoken::{encode, Header, EncodingKey, DecodingKey, Validation, decode};
 
-use jsonwebtoken::{Algorithm};
-use std::time::{Duration, SystemTime};
 #[derive(Debug, serde::Deserialize)]
 struct FormDataEmail {
     email: String,
@@ -42,13 +39,7 @@ struct FormDataRevoke {
     otp: String,
     message: String,
 }
-// Définissez une struct pour représenter les claims JWT
-#[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    email: String,
-    iat: u64,
-    exp: u64,
-}
+
 
 #[derive(Debug, MultipartForm)]
 pub struct UploadForm {
@@ -67,10 +58,9 @@ async fn index(tmpl: web::Data<tera::Tera>) -> Result<impl Responder, Error> {
     Ok(HttpResponse::Ok().body(rendered))
 }
 
-// Traitement de la requête POST pour la route /otp
+
 #[post("/otp")]
 async fn email_submit_otp_generation(form: web::Form<FormDataEmail>) -> HttpResponse {
-    // generate otp 2 time without crashing page
     
     otp::generate_otp(
         form.email.to_string(),
@@ -80,7 +70,7 @@ async fn email_submit_otp_generation(form: web::Form<FormDataEmail>) -> HttpResp
     )
     .await;
 
-    let jwt = generate_jwt(form.email.to_string());
+    let jwt = jwt::generate_jwt(form.email.to_string());
 
     
     // Stocker l'e-mail dans un cookie pour une utilisation ultérieure
@@ -97,6 +87,8 @@ async fn email_submit_otp_generation(form: web::Form<FormDataEmail>) -> HttpResp
     )
 }
 
+
+
 // Traitement de la requête POST pour la route /uploadCSR
 #[post("/uploadCSR")]
 async fn verification_otp(form: web::Form<FormDataOtp>, req: HttpRequest) -> HttpResponse {
@@ -106,7 +98,7 @@ async fn verification_otp(form: web::Form<FormDataOtp>, req: HttpRequest) -> Htt
     if let Some(cookie) = cookie {
         let jwt = cookie.value();
 
-        let email = get_email_from_jwt(jwt).unwrap_or_default();
+        let email = jwt::get_email_from_jwt(jwt).unwrap_or_default();
 
         if otp::verify_otp(email.to_string(), form.otp.as_bytes(), "otp".to_string()).await {
             get_page_response(
@@ -138,7 +130,7 @@ async fn create_certificates(
     // Check if the cookie exists
     if let Some(cookie) = cookie {
         let jwt = cookie.value();
-        let email = get_email_from_jwt(jwt).unwrap_or_default();
+        let email = jwt::get_email_from_jwt(jwt).unwrap_or_default();
 
         // Check if the form contains a file
         if let Some(file) = form.file {
@@ -205,7 +197,7 @@ async fn send_all_certificates_to_user(req: HttpRequest) -> HttpResponse {
 
     if let Some(cookie) = cookie {
         let jwt = cookie.value();
-        let email = get_email_from_jwt(jwt).unwrap_or_default();
+        let email = jwt::get_email_from_jwt(jwt).unwrap_or_default();
 
 
         certificates::send_cert(email.to_string());
@@ -227,7 +219,7 @@ async fn revoke_certificate(req: HttpRequest,form: web::Form<FormDataRevoke> ) -
 
     if let Some(cookie) = cookie {
         let jwt = cookie.value();
-        let email = get_email_from_jwt(jwt).unwrap_or_default();
+        let email = jwt::get_email_from_jwt(jwt).unwrap_or_default();
 
 
         
@@ -265,9 +257,7 @@ async fn main() -> std::io::Result<()> {
 
     log::info!("starting HTTP server at http://localhost:8080");
     let tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/src/templates/**/*")).unwrap();
-    let secret = env::var("JWT_SECRET")
-    .expect("La clé secrète JWT doit être définie dans la variable d'environnement JWT_SECRET");
-
+    
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(tera.clone()))
@@ -363,41 +353,5 @@ fn get_page_response(
             .cookie(cookie)
             .body(body),
         Err(_) => fallback(&error_msg),
-    }
-}
-
-
-fn generate_jwt(email: String) -> String {
-    // Créez un header JWT
-    let header = Header::new(Algorithm::HS256);
-
-    // Créez une payload JWT
-    let claims = Claims {
-        email: email.to_string(),
-        iat: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
-        exp: (SystemTime::now() + Duration::from_secs(3600)).duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
-    };
-
-    // Générez la clé secrète JWT à partir de la variable d'environnement JWT_SECRET
-    let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET doit être défini !");
-    let key = EncodingKey::from_secret(secret.as_ref());
-
-    // Générez le JWT
-    jsonwebtoken::encode(&header, &claims, &key).unwrap()
-}
-
-
-
-fn get_email_from_jwt(jwt: &str) -> Option<String> {
-    let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    let key = DecodingKey::from_secret(secret.as_ref());
-
-    let validation = Validation::new(Algorithm::HS256);
-
-    let decoded = decode::<Claims>(jwt, &key, &validation);
-
-    match decoded {
-        Ok(token) => Some(token.claims.email),
-        Err(_) => None,
     }
 }
