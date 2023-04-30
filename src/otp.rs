@@ -1,8 +1,6 @@
 use std::fs::{OpenOptions, self};
 use std::io::Read;
 use std::{fs::File, io::Write};
-use lettre::message::{Attachment, MultiPart, SinglePart};
-use lettre::message::header::ContentType;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -22,51 +20,54 @@ pub struct FormData {
 
 
 // generate_otp() génère un OTP aléatoire et l'envoie par e-mail à l'utilisateur
-pub async fn generate_otp(email: String) {
+
+pub async fn generate_otp(email: String,path_file : String) {
     let mut rng = rand::thread_rng();
     let otp: u32 = rng.gen_range(100000..999999);
     let otp = otp.to_string();
     let otp = otp.as_bytes();
 
-    let mut file = File::open("otp.txt").unwrap();
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-    if contents.contains(&email) {
-        // Update OTP in the file
-        let mut updated_contents = String::new();
-        for line in contents.lines() {
-            if line.starts_with(&email) {
-                // Update OTP for the matching email
-                let new_line = format!("{}:{}", email, String::from_utf8_lossy(&otp));
-                updated_contents.push_str(&new_line);
-            } else {
-                updated_contents.push_str(line);
+    send_otp_email(email.clone(), otp).await;
+
+    {
+        
+
+        let mut file = File::open(path_file.clone()+".txt").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        if contents.contains(&email) {
+            // Update OTP in the file
+            let mut updated_contents = String::new();
+            for line in contents.lines() {
+                if line.starts_with(&email) {
+                    // Update OTP for the matching email
+                    let new_line = format!("{}:{}", email, String::from_utf8_lossy(&otp));
+                    updated_contents.push_str(&new_line);
+                } else {
+                    updated_contents.push_str(line);
+                }
+                updated_contents.push('\n');
             }
-            updated_contents.push('\n');
+
+            let mut file = File::create(path_file.clone()+".txt").expect("Failed to create file otp.txt");
+            file.write_all(updated_contents.as_bytes())
+                .expect("Failed to write to file otp.txt");
+        } else {
+            let file = OpenOptions::new().append(true).create(true).open(path_file.clone()+".txt");
+            let mut file = match file {
+                Ok(file) => file,
+                Err(_) => panic!("Impossible d'ouvrir le fichier otp.txt"),
+            };
+            file.write_all(email.as_bytes()).unwrap();
+            file.write_all(b":").unwrap();
+            file.write_all(otp).unwrap();
+            file.write_all(b"\n").unwrap();
         }
-
-        send_otp_email(email, otp).await;
-
-
-        let mut file = File::create("otp.txt").expect("Failed to create file otp.txt");
-        file.write_all(updated_contents.as_bytes())
-            .expect("Failed to write to file otp.txt");
-    } else {
-        let file = OpenOptions::new().append(true).create(true).open("otp.txt");
-        let mut file = match file {
-            Ok(file) => file,
-            Err(_) => panic!("Impossible d'ouvrir le fichier otp.txt"),
-        };
-        file.write_all(email.as_bytes()).unwrap();
-        file.write_all(b":").unwrap();
-        file.write_all(otp).unwrap();
-        file.write_all(b"\n").unwrap();
     }
-    
 
     println!("Email et OTP ajoutés au fichier otp.txt avec succès!");
-
 }
+
 
 async fn send_otp_email(email_user:String,otp: &[u8]) {
     let email = Message::builder()
@@ -88,7 +89,10 @@ async fn send_otp_email(email_user:String,otp: &[u8]) {
         .build();
 
     mailer.send(&email).unwrap();
-    println!("Email envoyé avec succès!");
+    match mailer.send(&email) {
+        Ok(_) => println!("Email envoyé avec succès!"),
+        Err(e) => println!("Erreur lors de l'envoi de l'e-mail: {:?}", e),
+    }
 }
 
 // verify_otp() vérifie si l'OTP entré par l'utilisateur correspond à celui envoyé par e-mail

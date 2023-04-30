@@ -9,18 +9,13 @@ extern crate lettre_email;
 use std::fs;
 
 use lettre::message::header::ContentType;
-use lettre::message::{SinglePart, MultiPart, Attachment, self};
+use lettre::message::{SinglePart, MultiPart, Attachment};
 
 
 
 
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
-
-use actix_web::{post, Error, HttpRequest, HttpResponse, Responder};
-
-use actix_multipart::form::{tempfile::TempFile, MultipartForm};
-
 
 
 

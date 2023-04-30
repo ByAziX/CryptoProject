@@ -37,7 +37,7 @@ pub (crate) async fn check_csr(email:String, csr_file_path: &str) -> bool {
 }
 
 
-pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
+pub(crate) async fn create_cert(email:String,csr_file_path: &str) -> bool {
 
     let default_file = "Certificats/offline";
     let conf_file = "Certificats/offline/config/openssl.cnf";
@@ -45,7 +45,7 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
     
     
 
-    Command::new("openssl")
+   if Command::new("openssl")
         .arg("ca")
         .arg("-keyfile")
         .arg(default_file.to_owned()+"/ACI/private.key")
@@ -61,7 +61,11 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) {
         .arg("myCA_extensions")
         .arg("-batch")
         .output()
-        .expect("Failed to execute command");
+        .expect("Failed to execute command").status.success() {
+            return true;
+        }                                                                                                                    
+
+    return false;
 
 
 }
@@ -82,8 +86,7 @@ pub fn revoke_cert(email: String){
         .arg("-revoke")
         .arg(output_file.to_owned()+&email+".pem")
         .output()
-        .expect("Failed to execute command");                                                                                                                                
-
+        .expect("Failed to execute command");
     
 }
 
