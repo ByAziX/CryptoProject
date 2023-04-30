@@ -6,7 +6,7 @@ extern crate lettre;
 extern crate lettre_email;
 
 
-use std::fs;
+use std::{fs, env};
 
 use lettre::message::header::ContentType;
 use lettre::message::{SinglePart, MultiPart, Attachment};
@@ -53,9 +53,12 @@ pub fn send_cert(email_user: String) {
         )
         .unwrap();
 
+        let secret = env::var("EMAIL_SECRET");
+
+
         let creds = Credentials::new(
             "projetcryptoca@gmail.com".to_string(),
-            "dqvjnxkzwdjdoktc".to_string(),
+            secret.unwrap(),
         );
     
         // Open a remote connection to gmail

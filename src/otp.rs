@@ -1,3 +1,4 @@
+use std::env;
 use std::fs::{OpenOptions};
 use std::io::Read;
 use std::{fs::File, io::Write};
@@ -21,15 +22,15 @@ pub struct FormData {
 
 // generate_otp() génère un OTP aléatoire et l'envoie par e-mail à l'utilisateur
 
-pub async fn generate_otp(email: String,path_file : String) {
+pub async fn generate_otp(email: String,path_file : String,subject:String,message:String) {
     let mut rng = rand::thread_rng();
     let otp: u32 = rng.gen_range(100000..999999);
     let otp = otp.to_string();
     let otp = otp.as_bytes();
 
-    send_otp_email(email.clone(), otp).await;
+    send_otp_email(email.clone(), otp,subject,message).await;
 
-    {
+    
         
 
         let mut file = File::open(path_file.clone()+".txt").unwrap();
@@ -63,23 +64,25 @@ pub async fn generate_otp(email: String,path_file : String) {
             file.write_all(otp).unwrap();
             file.write_all(b"\n").unwrap();
         }
-    }
+    
 
     println!("Email et OTP ajoutés au fichier otp.txt avec succès!");
 }
 
 
-async fn send_otp_email(email_user:String,otp: &[u8]) {
+async fn send_otp_email(email_user:String,otp: &[u8],subject:String,message:String) {
     let email = Message::builder()
         .from("projetcryptoca@gmail.com".parse().unwrap())
         .to(email_user.parse().unwrap())
-        .subject("OTP")
-        .body(String::from("Votre OTP est : ") + String::from_utf8_lossy(otp).as_ref())
+        .subject(subject)
+        .body(String::from(message) + String::from_utf8_lossy(otp).as_ref())
         .unwrap();
+
+        let secret = env::var("EMAIL_SECRET");
 
     let creds = Credentials::new(
         "projetcryptoca@gmail.com".to_string(),
-        "dqvjnxkzwdjdoktc".to_string(),
+        secret.unwrap(),
     );
 
     // Open a remote connection to gmail
@@ -95,8 +98,8 @@ async fn send_otp_email(email_user:String,otp: &[u8]) {
 }
 
 // verify_otp() vérifie si l'OTP entré par l'utilisateur correspond à celui envoyé par e-mail
-pub async fn verify_otp(email: String,otp: &[u8]) -> bool {
-    let mut file = File::open("otp.txt").unwrap();
+pub async fn verify_otp(email: String,otp: &[u8],path_file:String) -> bool {
+    let mut file = File::open(path_file+".txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     if contents.contains(&email) {
