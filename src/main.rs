@@ -48,7 +48,6 @@ async fn index(tmpl: web::Data<tera::Tera>) -> Result<impl Responder, Error> {
 // Traitement de la requête POST pour la route /otp
 #[post("/otp")]
 async fn email_submit_otp_generation(
-    tera: web::Data<Tera>,
     form: web::Form<FormDataEmail>,
 ) -> HttpResponse {
     // generate otp 2 time without crashing page
@@ -66,7 +65,6 @@ async fn email_submit_otp_generation(
 // Traitement de la requête POST pour la route /uploadCSR
 #[post("/uploadCSR")]
 async fn verification_otp(
-    tera: web::Data<Tera>,
     form: web::Form<FormDataOtp>,
     req: HttpRequest,
 ) -> HttpResponse {
@@ -94,43 +92,52 @@ async fn verification_otp(
 }
 #[post("/MyCertificates")]
 async fn create_certificates(
-    tera: web::Data<Tera>,
     MultipartForm(form): MultipartForm<UploadForm>,
     req: HttpRequest,
 ) -> HttpResponse {
+    // Read the email cookie from the request
     let cookie = req.cookie("email");
 
+    // Check if the cookie exists
     if let Some(cookie) = cookie {
         let email = cookie.value();
 
+        // Check if the form contains a file
         if let Some(file) = form.file {
+
+            // Save the file to disk
             let path = format!("./tmp/{}.csr", email);
             file.file.persist(path.clone()).unwrap();
 
+            // Check if the CSR matches the email
             if openssl_cmd::check_csr(email.to_string(), &path).await {
+
+                // Create a certificate
                 if openssl_cmd::create_cert(email.to_string(), &path).await {
-                    
+
+                    // Return a success response
                     get_page_response(email.to_string(),"".to_string(), cookie,"MyCertificates.html".to_string())
 
                 } else {
+                    // Return an error response
                     get_page_response(email.to_string(),"Veuillez révoquer votre CSR avant d'en créer un autre !".to_string(), cookie,"upload_csr.html".to_string())
-
-
                 }
             } else {
+                // Return an error response
                 get_page_response(email.to_string(),"Le CSR et votre e-mail ne correspondent pas.".to_string(), cookie,"upload_csr.html".to_string())
             }
         } else {
-            HttpResponse::Ok().body("404 error file not found in")
+            // Return an error response
+            get_page_response(email.to_string(),"Le input pour la transmition de la CSR est vide !".to_string(), cookie,"upload_csr.html".to_string())
         }
     } else {
-        HttpResponse::Ok().body("404 error mail not found in")
+        // Return a 404 error response
+        HttpResponse::Ok().body("404 error email not found in")
     }
 }
 
 #[post("/MyCertificates/send_certificate_with_email")]
 async fn send_all_certificates_to_user(
-    tera: web::Data<Tera>,
     req: HttpRequest,
 ) -> HttpResponse {
     let cookie = req.cookie("email");
@@ -140,13 +147,9 @@ async fn send_all_certificates_to_user(
 
         certificates::send_cert(email.to_string());
 
-        let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
-        .expect("Erreur lors de la sérialisation des données");
-         let rendered = tera
-        .render("MyCertificates.html", &context)
-        .expect("Erreur lors du rendu du template uploadCSR");
+        get_page_response(email.to_string(),"Vos fichiers ont été envoyés !".to_string(), cookie,"MyCertificates.html".to_string())
 
-    HttpResponse::Ok().cookie(cookie).body(rendered)
+
         
     } else {
         HttpResponse::Ok().body("404 error mail not found in")
@@ -155,7 +158,6 @@ async fn send_all_certificates_to_user(
 
 #[post("/revoke_certificate")]
 async fn revoke_certificate(
-    tera: web::Data<Tera>,
     req: HttpRequest,
 ) -> HttpResponse {
     let cookie = req.cookie("email");
@@ -165,13 +167,7 @@ async fn revoke_certificate(
 
         openssl_cmd::revoke_cert(email.to_string());
 
-        let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
-        .expect("Erreur lors de la sérialisation des données");
-         let rendered = tera
-        .render("upload_csr.html", &context)
-        .expect("Erreur lors du rendu du template uploadCSR");
-
-    HttpResponse::Ok().cookie(cookie).body(rendered)
+        get_page_response(email.to_string(),"".to_string(), cookie,"upload_csr.html".to_string())
         
     } else {
         HttpResponse::Ok().body("404 error mail not found in")

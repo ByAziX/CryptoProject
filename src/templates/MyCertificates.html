@@ -14,14 +14,12 @@
 		<li>ISEN_ACI.pem</li>
 	</ul>
 
-	<h2>Téléchargement</h2>
-	<p>Cliquez sur le bouton ci-dessous pour télécharger la liste de certificats :</p>
-	<a href="lien_vers_le_fichier_pdf" download><button>Télécharger</button></a>
 
 	<h2>Envoi par mail</h2>
 	<form action="/MyCertificates/send_certificate_with_email" method="post">
 		<label for="email">Adresse email :</label>
 		<span>{{email}}</span>
+		<span id ="error_msg" name="error_msg">{{error_msg}}</span>
 		<br>
 		<input type="submit" value="Envoyer">
 	</form>
