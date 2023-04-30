@@ -102,12 +102,10 @@ oscp(){
 
   openssl req -new -key private.key -out csr.pem -config "$currentFolder/config/openssl.cnf"
 
-  openssl req -new -nodes -out ocspSigning.csr  -keyout ocspSigning.key -config ../ocsp/config/openssl.cnf -extensions v3_OCSP
-
 
   cd ../ACI/
 
-  openssl ca -keyfile private.key -cert cacert.pem -in ../ocsp/ocspSigning.csr -out ../ocsp/ocspSigning.crt -config ./config/openssl.cnf -batch
+  openssl ca -keyfile private.key -cert cacert.pem -in ../ocsp/csr.pem -out ../ocsp/ocspSigning.crt -config "$currentFolder/config/openssl.cnf" -batch
 
 }
 

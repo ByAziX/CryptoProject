@@ -25,7 +25,7 @@ openssl ca -config <config_file> -gencrl -out <crl_file>
 
 # Start OCSP Server. Switch to a new terminal and run
 
-openssl ocsp -index index -port 8888 -rsigner ../ocsp/ocspSigning.crt -rkey ../ocsp/ocspSigning.key -CA cacert.pem -text -out ../ocsp/log.txt &
+openssl ocsp -index index -port 8888 -rsigner ../ocsp/ocspSigning.crt -rkey ../ocsp/private.key -CA cacert.pem -text -out ../ocsp/log.txt &
 
 # Verify Certificate Revocation. Switch to a new terminal and run
 

@@ -2,14 +2,14 @@
 default_ca = myCA
 
 [ myCA ]
-dir = Certificats/offline/ACI/
+dir = .
 new_certs_dir = $dir/newcerts
 database = $dir/index
 serial = $dir/serial
 private_key = $dir/private.key
 certificate = $dir/cacert.pem
 default_md = sha256
-default_days = 90
+default_days = 1825
 policy = myCA_policy
 x509_extensions = v3_OCSP
 copy_extensions = copy
