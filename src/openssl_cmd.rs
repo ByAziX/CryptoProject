@@ -72,7 +72,7 @@ pub(crate) async fn create_cert(email:String,csr_file_path: &str) -> bool {
 
 pub fn revoke_cert(email: String){
     let default_file = "Certificats/offline";
-    let conf_file = "Certificats/offline/config/ocsp.cnf";
+    let conf_file = "Certificats/offline/config/openssl.cnf";
     let output_file = "new_certs_client/";
 
     Command::new("openssl")
