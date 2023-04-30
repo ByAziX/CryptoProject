@@ -20,8 +20,6 @@ mod openssl_cmd;
 mod otp;
 mod certificates;
 
-
-
 #[derive(Debug, serde::Deserialize)]
 struct FormDataEmail {
     email: String,
@@ -127,11 +125,11 @@ async fn create_certificates(
 
             if openssl_cmd::check_csr(email.to_string(), &path).await {
                 if openssl_cmd::create_cert(email.to_string(), &path).await {
-                    otp::generate_otp(email.to_string(),"otp_revoke".to_string()).await;                    
+                    //otp::generate_otp(email.to_string(),"otp_revoke".to_string()).await;                    
                     let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
                     .expect("Erreur lors de la sérialisation des données");
                 let rendered = tera
-                    .render("revoke_certificate.html", &context)
+                    .render("MyCertificates.html", &context)
                     .expect("Erreur lors du rendu du template uploadCSR");
                 
                 HttpResponse::Ok().cookie(cookie).body(rendered)
@@ -198,7 +196,7 @@ async fn revoke_certificate(
         let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
         .expect("Erreur lors de la sérialisation des données");
          let rendered = tera
-        .render("MyCertificates.html", &context)
+        .render("upload_csr.html", &context)
         .expect("Erreur lors du rendu du template uploadCSR");
 
     HttpResponse::Ok().cookie(cookie).body(rendered)
