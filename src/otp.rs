@@ -1,4 +1,4 @@
-use std::fs::{OpenOptions, self};
+use std::fs::{OpenOptions};
 use std::io::Read;
 use std::{fs::File, io::Write};
 use rand::Rng;

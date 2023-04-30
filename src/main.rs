@@ -1,4 +1,8 @@
 
+mod openssl_cmd;
+mod otp;
+mod certificates;
+
 use actix_http::body::BoxBody;
 use actix_multipart::{
     form::{
@@ -7,18 +11,10 @@ use actix_multipart::{
     },
 };
 use actix_web::{
-    cookie::Cookie, get,http::{header::ContentType, StatusCode},    error,  middleware::{self, ErrorHandlerResponse, ErrorHandlers},Result, post, web, App, HttpRequest, HttpResponse, HttpServer, dev::ServiceResponse,Error, Responder,
+    cookie::Cookie, get,http::{header::ContentType, StatusCode},  middleware::{self, ErrorHandlerResponse, ErrorHandlers},Result, post, web, App, HttpRequest, HttpResponse, HttpServer, dev::ServiceResponse,Error, Responder,
 };
-use actix_web_lab::respond::Html;
 use tera::Tera;
 
-use std::collections::HashMap;
-
-
-
-mod openssl_cmd;
-mod otp;
-mod certificates;
 
 #[derive(Debug, serde::Deserialize)]
 struct FormDataEmail {
@@ -39,7 +35,6 @@ pub struct UploadForm {
 #[get("/")]
 // Traitement de la requête GET pour la route /
 async fn index(tmpl: web::Data<tera::Tera>) -> Result<impl Responder, Error> {
-   
 
     let context = tera::Context::from_serialize(serde_json::json!({}))
         .expect("Erreur lors de la sérialisation des données");
@@ -58,11 +53,6 @@ async fn email_submit_otp_generation(
 ) -> HttpResponse {
     // generate otp 2 time without crashing page
     otp::generate_otp(form.email.to_string(),"otp".to_string()).await;
-
-    
-
-
-
     // Stocker l'e-mail dans un cookie pour une utilisation ultérieure
     let mut cookie = Cookie::new("email", form.email.to_string());
     cookie.set_path("/uploadCSR");
@@ -125,7 +115,6 @@ async fn create_certificates(
 
             if openssl_cmd::check_csr(email.to_string(), &path).await {
                 if openssl_cmd::create_cert(email.to_string(), &path).await {
-                    //otp::generate_otp(email.to_string(),"otp_revoke".to_string()).await;                    
                     let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
                     .expect("Erreur lors de la sérialisation des données");
                 let rendered = tera
@@ -143,8 +132,6 @@ async fn create_certificates(
                 HttpResponse::Ok().cookie(cookie).body(rendered)
 
                 }
-
-                
             } else {
                 HttpResponse::Ok().body("404 error csr incorrect")
             }
