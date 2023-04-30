@@ -59,13 +59,8 @@ async fn email_submit_otp_generation(
     cookie.set_http_only(true);
     cookie.set_secure(true);
 
-    let context = tera::Context::from_serialize(serde_json::json!({ "email": form.email}))
-        .expect("Erreur lors de la sérialisation des données");
-    let rendered = tera
-        .render("otp.html", &context)
-        .expect("Erreur lors du rendu du template otp");
+    get_page_response(form.email.to_string(),"".to_string(), cookie,"otp.html".to_string())
 
-    HttpResponse::Ok().cookie(cookie).body(rendered)
 }
 
 // Traitement de la requête POST pour la route /uploadCSR
@@ -77,22 +72,21 @@ async fn verification_otp(
 ) -> HttpResponse {
     // Récupérer la variable depuis le cookie
     let cookie = req.cookie("email");
+   
     if let Some(cookie) = cookie {
         let email = cookie.value();
+       
 
         let verify_otp = otp::verify_otp(email.to_string(), form.otp.as_bytes()).await;
 
         if verify_otp {
-            let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
-                .expect("Erreur lors de la sérialisation des données");
-            let rendered = tera
-                .render("upload_csr.html", &context)
-                .expect("Erreur lors du rendu du template uploadCSR");
+            get_page_response(email.to_string(),"".to_string(), cookie,"upload_csr.html".to_string())
 
-            HttpResponse::Ok().cookie(cookie).body(rendered)
         } else {
-            // httpResponse error message
-            HttpResponse::Ok().body("404 error OTP incorrect")
+            
+
+            get_page_response(email.to_string(),"WRONG OTP".to_string(), cookie,"otp.html".to_string())
+
         }
     } else {
         HttpResponse::Ok().body("404 error mail not found in")
@@ -115,25 +109,16 @@ async fn create_certificates(
 
             if openssl_cmd::check_csr(email.to_string(), &path).await {
                 if openssl_cmd::create_cert(email.to_string(), &path).await {
-                    let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
-                    .expect("Erreur lors de la sérialisation des données");
-                let rendered = tera
-                    .render("MyCertificates.html", &context)
-                    .expect("Erreur lors du rendu du template uploadCSR");
-                
-                HttpResponse::Ok().cookie(cookie).body(rendered)
-                } else {
-                    let context = tera::Context::from_serialize(serde_json::json!({ "email": email }))
-                    .expect("Erreur lors de la sérialisation des données");
-                let rendered = tera
-                    .render("upload_csr.html", &context)
-                    .expect("Erreur lors du rendu du template uploadCSR");
+                    
+                    get_page_response(email.to_string(),"".to_string(), cookie,"MyCertificates.html".to_string())
 
-                HttpResponse::Ok().cookie(cookie).body(rendered)
+                } else {
+                    get_page_response(email.to_string(),"Veuillez révoquer votre CSR avant d'en créer un autre !".to_string(), cookie,"upload_csr.html".to_string())
+
 
                 }
             } else {
-                HttpResponse::Ok().body("404 error csr incorrect")
+                get_page_response(email.to_string(),"Le CSR et votre e-mail ne correspondent pas.".to_string(), cookie,"upload_csr.html".to_string())
             }
         } else {
             HttpResponse::Ok().body("404 error file not found in")
@@ -271,3 +256,32 @@ fn get_error_response<B>(res: &ServiceResponse<B>, error: &str) -> HttpResponse 
         None => fallback(error),
     }
 }
+
+
+fn get_page_response( email: String, error_msg: String,cookie:Cookie, page: String) -> HttpResponse {
+    
+    let tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/src/templates/**/*")).unwrap();
+
+    // Provide a fallback to a simple plain text response in case an error occurs during the
+    // rendering of the error page.
+    let fallback = |e: &str| {
+        HttpResponse::build(StatusCode::NOT_FOUND)
+            .content_type(ContentType::plaintext())
+            .body(e.to_string())
+    };
+
+            let mut context = tera::Context::new();
+            context.insert("email", &email);
+            context.insert("error_msg", &error_msg);
+            let body = tera.render(&page, &context);
+
+            match body {
+                Ok(body) => HttpResponse::build(StatusCode::OK)
+                    .content_type(ContentType::html())
+                    .cookie(cookie)
+                    .body(body),
+                Err(_) => fallback(&error_msg),
+            }
+        }
+    
+

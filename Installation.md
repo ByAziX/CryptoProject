@@ -6,6 +6,11 @@ cd hello-world
 # Rust run
 cargo watch -x run
 
+
+# Rust debug 
+RUST_BACKTRACE=1 cargo run
+
+
 # lire un certificat 
 openssl x509 -in ./ISEN/Cours/Cryptographie/CryptoWebsiteCA/CryptoProject/new_certs_client/hugo.millet@isen.yncrea.fr.pem -text -noout
 

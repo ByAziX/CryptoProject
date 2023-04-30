@@ -44,4 +44,13 @@ body, form, label, input, button {
   #email {
     font-weight: bold;
   }
+
+
+  
+
+  #error_msg {
+    color: red;
+    font-size: 12px;
+    display: none;
+  }
   

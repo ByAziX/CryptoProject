@@ -88,7 +88,6 @@ async fn send_otp_email(email_user:String,otp: &[u8]) {
         .credentials(creds)
         .build();
 
-    mailer.send(&email).unwrap();
     match mailer.send(&email) {
         Ok(_) => println!("Email envoyé avec succès!"),
         Err(e) => println!("Erreur lors de l'envoi de l'e-mail: {:?}", e),
