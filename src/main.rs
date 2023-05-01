@@ -162,7 +162,7 @@ async fn create_certificates(
                     // Return an error response
                     get_page_response(
                         email.to_string(),
-                        "Veuillez révoquer votre CSR avant d'en créer un autre !".to_string(),
+                        "Veuillez révoquer votre certificat avant d'en créer un autre !".to_string(),
                         cookie,
                         "upload_csr.html".to_string(),
                     )
@@ -228,7 +228,7 @@ async fn revoke_certificate(req: HttpRequest,form: web::Form<FormDataRevoke> ) -
             openssl_cmd::revoke_cert(email.to_string());
             get_page_response(
                 email.to_string(),
-                "otre certificat a été révoqué".to_string(),
+                "Votre certificat a été révoqué".to_string(),
                 cookie.clone(),
                 "upload_csr.html".to_string(),
             )
