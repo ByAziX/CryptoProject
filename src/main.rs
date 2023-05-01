@@ -270,7 +270,7 @@ async fn main() -> std::io::Result<()> {
             .service(send_all_certificates_to_user)
             .service(revoke_certificate)
             .service(
-                Files::new("/src/static", "./src/static/")
+                actix_files::Files::new("/static", "./src/static")
                     .show_files_listing()
                     .use_last_modified(true),
             )
