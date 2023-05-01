@@ -1,74 +1,146 @@
+/* Utilisation de flexbox pour aligner les éléments horizontalement et verticalement */
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-h1 {
-  font-size: 2rem;
-  text-align: center;
-}
-
-h2 {
-  font-size: 1.5rem;
-}
-
-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
+  justify-content: center;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
 }
 
-label {
-  margin-top: 1rem;
+/* Style pour le titre principal */
+h1 {
+  font-size: 36px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-input[type="file"] {
-  margin-top: 1rem;
+/* Style pour les sous-titres */
+h2 {
+  font-size: 24px;
+  margin-top: 60px;
+  margin-bottom: 20px;
 }
 
-span {
-  margin-top: 0.5rem;
-}
-
+/* Style pour le formulaire de demande de certificat SSL */
 #csrForm {
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-#error_msg {
-  color: red;
-}
-
-button[type="submit"], input[type="submit"] {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
+/* Style pour le bouton de soumission du formulaire de demande */
+#csrForm button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #2196f3;
+  color: white;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
-  color: #fff;
-  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-button[type="submit"]:hover, input[type="submit"]:hover {
-  background-color: #0069d9;
+#csrForm button:hover {
+  background-color: #0d8bf0;
 }
 
-input[type="text"] {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+/* Style pour le formulaire d'envoi par mail */
+form:nth-of-type(2) {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  padding: 20px;
   border-radius: 5px;
-  font-size: 1rem;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-input[type="text"]:focus {
-  outline: none;
-  border-color: #007bff;
+/* Style pour le bouton d'envoi de mail */
+form:nth-of-type(2) input[type="submit"] {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-#otp_label, #motif_label {
-  display: block;
-  margin-top: 1rem;
+form:nth-of-type(2) input[type="submit"]:hover {
+  background-color: #0d8bf0;
+}
+
+/* Style pour le formulaire de révocation de certificat */
+form:nth-of-type(3) {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Style pour les labels des formulaires de révocation */
+form:nth-of-type(3) label {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+/* Style pour le champ OTP */
+form:nth-of-type(3) #otp {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Style pour le champ Motif de révocation */
+form:nth-of-type(3) #message {
+margin-top: 10px;
+padding: 10px;
+font-size: 18px;
+border: none;
+border-radius: 5px;
+box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Style pour le bouton de soumission du formulaire de révocation */
+form:nth-of-type(3) button {
+margin-top: 20px;
+padding: 10px 20px;
+font-size: 18px;
+background-color: #2196f3;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+form:nth-of-type(3) button:hover {
+background-color: #0d8bf0;
+}
+
+/* Style pour les messages d'erreur */
+#error_msg {
+color: red;
+font-size: 18px;
+margin-top: 20px;
 }

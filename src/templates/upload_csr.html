@@ -4,7 +4,7 @@
     <title>Formulaire de demande de certificat SSL</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../static/css/formulaire_csr.css">
+    <link rel="stylesheet" href="../static/css/formulaire_email.css">
 
 </head>
 <body>
@@ -16,17 +16,23 @@
         <button type="submit">Submit</button>
     </form>
 
+    <h2>Envoi par mail</h2>
+	<form action="/MyCertificates/send_certificate_with_email" method="post">
+		<label for="email">Adresse email :</label>
+		<span>{{email}}</span>
+		<br>
+		<input type="submit" value="Envoyer">
+	</form>
+
     <h2>Révoquer un certificat</h2>
 	<form action="/revoke_certificate" method="post">
 		<label for="email">Adresse email :</label>
 		<span>{{email}}</span>
-		<br>
         <label for="otp" id="otp_label">OTP de révocation :</label>
         <input type="text" id="otp" name="otp" required>
         <br>
         <label for="motif" id="message_label" required>Motif de révocation :</label>
-        <input type="text" id="message" name="message">
-        <br>
+        <input type="text" id="message" name="message"><br>
         
 		<button type="submit">Submit</button>
 	</form>

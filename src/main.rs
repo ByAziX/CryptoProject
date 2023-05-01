@@ -5,6 +5,7 @@ mod jwt;
 
 use std::env;
 
+use actix_files::Files;
 use dotenv::dotenv;
 
 use actix_http::body::BoxBody;
@@ -156,7 +157,7 @@ async fn create_certificates(
                         email.to_string(),
                         "".to_string(),
                         cookie,
-                        "MyCertificates.html".to_string(),
+                        "upload_csr.html".to_string(),
                     )
                 } else {
                     // Return an error response
@@ -206,7 +207,7 @@ async fn send_all_certificates_to_user(req: HttpRequest) -> HttpResponse {
             email.to_string(),
             "Vos fichiers ont été envoyés !".to_string(),
             cookie,
-            "MyCertificates.html".to_string(),
+            "upload_csr.html".to_string(),
         )
     } else {
         HttpResponse::Ok().body("404 error mail not found in")
@@ -269,12 +270,13 @@ async fn main() -> std::io::Result<()> {
             .service(create_certificates)
             .service(send_all_certificates_to_user)
             .service(revoke_certificate)
-            .service(web::scope("").wrap(error_handlers()))
             .service(
-                actix_files::Files::new("/static", "./src/static")
+                Files::new("/src/static", "./src/static/")
                     .show_files_listing()
                     .use_last_modified(true),
             )
+            .service(web::scope("").wrap(error_handlers()))
+            
     })
     .bind(("127.0.0.1", 8080))?
     .run()
